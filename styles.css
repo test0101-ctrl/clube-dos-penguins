@@ -1,105 +1,112 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #121212;
   color: #f1f1f1;
-  margin: 0;
-  padding: 0;
+  line-height: 1.6;
 }
 
+/* HEADER */
 header {
   background-color: #1e1e1e;
   padding: 1rem;
   text-align: center;
+  border-bottom: 1px solid #333;
 }
 
 h1 {
-  margin: 0;
+  font-size: 1.8rem;
 }
 
+/* CONTAINER */
 .container {
-  max-width: 800px;
+  max-width: 700px;
   margin: 2rem auto;
   padding: 1rem;
 }
 
-/* PLANOS */
-
-.plans {
-  display: grid;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.plan-card {
-  background: #1e1e1e;
-  padding: 1.5rem;
+/* LOGIN BOX */
+#login-box {
+  background-color: #1e1e1e;
+  padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 0 10px #00000033;
+  box-shadow: 0 0 10px #00000044;
 }
 
-.plan-card h3 {
-  margin-top: 0;
+#login-box h2 {
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
-.plan-card button {
+input {
+  width: 100%;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button {
+  width: 100%;
+  padding: 0.7rem;
   margin-top: 1rem;
-  background: #00ff99;
+  background-color: #00ff99;
   color: #000;
   border: none;
-  padding: 0.5rem 1rem;
-  font-weight: bold;
   border-radius: 5px;
+  font-weight: bold;
   cursor: pointer;
+  transition: 0.3s ease;
 }
 
-.client {
-  background: #1e1e1e;
+button:hover {
+  background-color: #00cc7a;
+}
+
+/* CONTENT SECTION */
+#content h2 {
   margin-bottom: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.rank {
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul li {
+  margin: 0.5rem 0;
+}
+
+ul li a {
+  color: #00ff99;
+  text-decoration: none;
   font-weight: bold;
 }
 
-.bronze {
-  background: #cd7f32;
-  color: #000;
+ul li a:hover {
+  text-decoration: underline;
 }
 
-.silver {
-  background: #c0c0c0;
-  color: #000;
-}
-
-.gold {
-  background: #ffd700;
-  color: #000;
-}
-
-.goal {
-  margin-top: 2rem;
-}
-
-.progress-bar {
-  width: 100%;
-  background-color: #333;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 24px;
-  background-color: #00ff99;
-  width: 0;
+/* ERROR MESSAGE */
+#login-error {
   text-align: center;
-  color: #000;
-  line-height: 24px;
-  font-weight: bold;
+  margin-top: 1rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 500px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
 }
