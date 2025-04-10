@@ -3,8 +3,8 @@ function login() {
   const pass = document.getElementById("password").value;
 
   if (user === "goon" && pass === "1234") {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("private-content").style.display = "block";
+    localStorage.setItem("loggedIn", "true");
+    window.location.href = "videos.html"; // Redireciona para os vídeos
   } else {
     document.getElementById("login-error").style.display = "block";
   }
