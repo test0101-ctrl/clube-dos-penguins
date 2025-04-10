@@ -6,7 +6,7 @@ const clients = [
   { name: "Ana", totalDonated: 150 }
 ];
 
-const goalAmount = 500;
+const goalAmount = 3500;
 
 function getRankClass(value) {
   if (value >= 100) return 'gold';
