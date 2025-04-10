@@ -11,29 +11,33 @@
     <h1>🎬 Conteúdos Exclusivos</h1>
   </header>
 
-  <div class="container" id="content">
-    <p>A carregar...</p>
+  <div class="container">
+    <div id="content">
+      <p>A carregar...</p>
+    </div>
   </div>
 
   <script>
-    // Verifica se o utilizador está autenticado
-    const isLoggedIn = localStorage.getItem("loggedIn");
+    window.addEventListener('DOMContentLoaded', () => {
+      const content = document.getElementById("content");
+      const isLoggedIn = localStorage.getItem("loggedIn");
 
-    if (isLoggedIn === "true") {
-      document.getElementById("content").innerHTML = `
-        <h2>Bem-vindo(a) ao conteúdo exclusivo 🔒</h2>
-        <ul>
-          <li><a href="https://drive.google.com/teulink1" target="_blank">📹 Vídeo exclusivo de Abril</a></li>
-          <li><a href="https://drive.google.com/teulink2" target="_blank">📹 Vídeo exclusivo de Março</a></li>
-          <li><a href="https://drive.google.com/teulink3" target="_blank">📺 Live especial (gravada)</a></li>
-        </ul>
-        <button onclick="logout()">Sair</button>
-      `;
-    } else {
-      document.getElementById("content").innerHTML = `
-        <p>Precisas de <a href="login.html">iniciar sessão</a> para ver este conteúdo.</p>
-      `;
-    }
+      if (isLoggedIn === "true") {
+        content.innerHTML = `
+          <h2>Bem-vindo(a) ao conteúdo exclusivo 🔒</h2>
+          <ul>
+            <li><a href="https://drive.google.com/teulink1" target="_blank">📹 Vídeo exclusivo de Abril</a></li>
+            <li><a href="https://drive.google.com/teulink2" target="_blank">📹 Vídeo exclusivo de Março</a></li>
+            <li><a href="https://drive.google.com/teulink3" target="_blank">📺 Live especial (gravada)</a></li>
+          </ul>
+          <button onclick="logout()">Sair</button>
+        `;
+      } else {
+        content.innerHTML = `
+          <p>Precisas de <a href="login.html">iniciar sessão</a> para ver este conteúdo.</p>
+        `;
+      }
+    });
 
     function logout() {
       localStorage.removeItem("loggedIn");
