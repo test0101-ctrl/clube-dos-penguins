@@ -22,6 +22,36 @@ h1 {
   padding: 1rem;
 }
 
+/* PLANOS */
+
+.plans {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.plan-card {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #00000033;
+}
+
+.plan-card h3 {
+  margin-top: 0;
+}
+
+.plan-card button {
+  margin-top: 1rem;
+  background: #00ff99;
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .client {
   background: #1e1e1e;
   margin-bottom: 1rem;
