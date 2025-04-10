@@ -1,21 +1,22 @@
+// Agora cada cliente tem o total doado em vez de valor mensal
 const clients = [
-  { name: "João", monthly: 5 },
-  { name: "Maria", monthly: 15 },
-  { name: "Carlos", monthly: 50 },
-  { name: "Ana", monthly: 25 }
+  { name: "João", totalDonated: 6 },
+  { name: "Maria", totalDonated: 25 },
+  { name: "Carlos", totalDonated: 80 },
+  { name: "Ana", totalDonated: 150 }
 ];
 
 const goalAmount = 500;
 
 function getRankClass(value) {
-  if (value >= 50) return 'gold';
-  if (value >= 20) return 'silver';
+  if (value >= 100) return 'gold';
+  if (value >= 25) return 'silver';
   return 'bronze';
 }
 
 function getRankLabel(value) {
-  if (value >= 50) return 'Gold';
-  if (value >= 20) return 'Silver';
+  if (value >= 100) return 'Gold';
+  if (value >= 25) return 'Silver';
   return 'Bronze';
 }
 
@@ -23,12 +24,12 @@ const clientsContainer = document.getElementById("clients");
 let total = 0;
 
 clients.forEach(client => {
-  total += client.monthly;
+  total += client.totalDonated;
   const div = document.createElement("div");
   div.className = "client";
   div.innerHTML = `
     <span>${client.name}</span>
-    <span class="rank ${getRankClass(client.monthly)}">${getRankLabel(client.monthly)}</span>
+    <span class="rank ${getRankClass(client.totalDonated)}">${getRankLabel(client.totalDonated)}</span>
   `;
   clientsContainer.appendChild(div);
 });
