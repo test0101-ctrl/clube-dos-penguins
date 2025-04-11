@@ -3,42 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minha Página de Apoio</title>
+  <title>Página Inicial</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Botão fixo de login -->
+  <button id="fixed-login-btn">Login</button>
+
   <header>
-    <h1>Minha Página de Apoio</h1>
+    <h1>🌟 Bem-vindo à tua página pessoal estilo Patreon</h1>
   </header>
 
   <div class="container">
-    <section class="plans">
-      <h2>Escolhe o teu plano</h2>
-      <div class="plan-card">
-        <h3>Plano Goonion - €2/mês</h3>
-        <p>✔ 1 vídeo exclusivo por mês<br>✔ Amigos chegados no Instagram<br>✔ Lives privadas do Goonion</p>
-        <button onclick="alert('Este é um protótipo — aqui vai o link de pagamento')">Apoiar com €2/mês</button>
-      </div>
-      <div class="plan-card">
-        <h3>Doação personalizada</h3>
-        <p>✔ Mesmos privilégios<br>Tu decides o valor mensal!</p>
-        <button onclick="alert('Este é um protótipo — aqui vai o link de pagamento personalizado')">Doar valor personalizado</button>
-      </div>
-    </section>
+    <p>Esta é a tua página inicial privada onde podes ver os teus planos, objetivos e conteúdo exclusivo.</p>
 
-    <hr>
+    <h2>Planos Disponíveis</h2>
+    <ul>
+      <li><strong>Plano de 2€ / mês</strong> – 1 vídeo exclusivo, lives privadas e amigos chegados no Insta</li>
+      <li><strong>Plano livre (donativo)</strong> – mesmos privilégios, só que com valor livre 🖤</li>
+    </ul>
 
-    <div id="clients"></div>
-
-    <div class="goal">
-      <h2>Objetivo: Novo PC + Microfone + Monitor</h2>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress">0%</div>
+    <h2>Objetivo atual</h2>
+    <p>🎯 A juntar dinheiro para um PC novo</p>
+    <div style="background: #333; border-radius: 10px; overflow: hidden; height: 25px; margin-top: 10px;">
+      <div style="width: 60%; background: #00ff99; height: 100%; text-align: center; color: black; font-weight: bold;">
+        60% atingido
       </div>
-      <p id="goal-info"></p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="login.js"></script>
 </body>
 </html>
