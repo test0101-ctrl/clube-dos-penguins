@@ -3,33 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Página Inicial</title>
+  <title>GoonPage</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Botão fixo de login -->
+  <!-- Botão fixo de login/logout -->
   <button id="fixed-login-btn">Login</button>
 
   <header>
-    <h1>🌟 Bem-vindo à tua página pessoal estilo Patreon</h1>
+    <h1>👑 Bem-vindo à GoonPage</h1>
+    <p>O teu cantinho exclusivo tipo Patreon ✨</p>
   </header>
 
   <div class="container">
-    <p>Esta é a tua página inicial privada onde podes ver os teus planos, objetivos e conteúdo exclusivo.</p>
-
-    <h2>Planos Disponíveis</h2>
-    <ul>
-      <li><strong>Plano de 2€ / mês</strong> – 1 vídeo exclusivo, lives privadas e amigos chegados no Insta</li>
-      <li><strong>Plano livre (donativo)</strong> – mesmos privilégios, só que com valor livre 🖤</li>
-    </ul>
-
-    <h2>Objetivo atual</h2>
-    <p>🎯 A juntar dinheiro para um PC novo</p>
-    <div style="background: #333; border-radius: 10px; overflow: hidden; height: 25px; margin-top: 10px;">
-      <div style="width: 60%; background: #00ff99; height: 100%; text-align: center; color: black; font-weight: bold;">
-        60% atingido
+    <section>
+      <h2>💸 Planos</h2>
+      <div class="planos">
+        <div class="plano">
+          <h3>2€ por mês</h3>
+          <p>✔ 1 vídeo exclusivo por mês</p>
+          <p>✔ Amigos chegados no Instagram</p>
+          <p>✔ Lives do Goonion</p>
+        </div>
+        <div class="plano">
+          <h3>Donativo Livre</h3>
+          <p>✔ Mesmo acesso, só decides quanto queres dar 🖤</p>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <section>
+      <h2>🎯 Objetivo atual</h2>
+      <p>A juntar para comprar um PC novo 💻</p>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" style="width: 60%;">60%</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📺 Conteúdos Exclusivos</h2>
+      <p>Faz login para veres os vídeos e lives especiais 👀</p>
+    </section>
   </div>
 
   <script src="login.js"></script>
