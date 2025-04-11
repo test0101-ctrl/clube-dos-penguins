@@ -1,9 +1,6 @@
 // Agora cada cliente tem o total doado em vez de valor mensal
 const clients = [
   { name: "Gustavo", totalDonated: 2 },
-  {},
-  {},
-  {}
 ];
 
 const goalAmount = 3500;
