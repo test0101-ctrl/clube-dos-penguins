@@ -3,30 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Área Exclusiva</title>
+  <title>Login</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1>Área Exclusiva de Apoio</h1>
-  </header>
+  <!-- Botão fixo -->
+  <button id="fixed-login-btn">Login</button>
 
   <div class="container">
     <div id="login-box">
-      <h2>Login</h2>
+      <h2>Iniciar Sessão</h2>
       <input type="text" id="username" placeholder="Utilizador" />
       <input type="password" id="password" placeholder="Palavra-passe" />
       <button onclick="login()">Entrar</button>
-      <p id="login-error" style="color: red; display: none;">Credenciais inválidas!</p>
-    </div>
-
-    <div id="private-content" style="display: none;">
-      <h2>🎥 Conteúdos Exclusivos</h2>
-      <ul>
-        <li><a href="https://drive.google.com/teulink1" target="_blank">Vídeo exclusivo de Abril</a></li>
-        <li><a href="https://drive.google.com/teulink2" target="_blank">Vídeo exclusivo de Março</a></li>
-        <li><a href="https://drive.google.com/teulink3" target="_blank">Live gravada especial</a></li>
-      </ul>
+      <p id="login-error" style="display:none; color: red;">Credenciais inválidas.</p>
     </div>
   </div>
 
