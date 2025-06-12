@@ -24,12 +24,20 @@
           <div class="app" onclick="openApp('audio')">🎧<span>Audio</span></div>
           <div class="app" onclick="openApp('calls')">📞<span>Calls</span></div>
           <div class="app" onclick="openApp('camera')">📷<span>Camera</span></div>
+          <div class="app" onclick="openApp('files')">📁<span>Files</span></div>
+          <div class="app" onclick="openApp('settings')">⚙️<span>Settings</span></div>
         </div>
       </div>
 
       <div class="app-screen hidden" id="appScreen">
         <button class="back-btn" onclick="goHome()">← Home</button>
         <div id="appContent"></div>
+      </div>
+
+      <div class="end-screen hidden" id="endScreen">
+        <h2>Case Solved</h2>
+        <p>You uncovered the truth. The phone belonged to Agent Rowan, who disappeared while investigating a secret transmission network hidden in ordinary phones...</p>
+        <p>Thanks for playing!</p>
       </div>
     </div>
   </div>
