@@ -63,6 +63,13 @@ body {
   color: #0f0;
 }
 
+/* NEW: Style for the subtle hint text */
+.lock-screen p.hint-text {
+  font-size: 0.8rem;
+  color: rgba(0, 255, 136, 0.4); /* Subtle green color with transparency */
+  margin-top: 10px;
+}
+
 #unlockError {
   color: red;
   margin-top: 5px;
@@ -149,13 +156,10 @@ body {
   background: black;
   color: #0f0;
 }
-
 .end-screen h2 {
   margin-top: 0;
   color: #00ff88;
 }
-
-/* Existing CSS */
 
 /* New styles for notifications */
 .notification {
@@ -217,5 +221,3 @@ body {
     transform: translate3d(4px, 0, 0);
   }
 }
-
-/* Existing CSS */
