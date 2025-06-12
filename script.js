@@ -35,17 +35,56 @@ function openApp(appName) {
 
   switch (appName) {
     case "messages":
-      content = "<p><strong>Unknown:</strong> Did you find it yet?</p><p><strong>Unknown:</strong> Don't trust what you see in the photos...</p>";
+      content = `
+        <p><strong>Unknown:</strong> Did you find it yet?</p>
+        <p><strong>Unknown:</strong> Don't trust what you see in the photos...</p>
+      `;
       break;
     case "gallery":
-      content = "<p>📸 [Corrupted image]<br>🗺 Coordinates found: 51.5074° N, 0.1278° W</p>";
+      content = `
+        <div class="image-entry">
+          <p><strong>📸 [Corrupted image]</strong></p>
+          <p>🗺 Coordinates found: 51.5074° N, 0.1278° W</p>
+        </div>
+        <div class="image-entry">
+          <img src="https://via.placeholder.com/150/000000/00ff88?text=Distorted" alt="Corrupted" />
+        </div>
+      `;
       break;
     case "notes":
-      content = "<p>"Remember: the signal weakens when close to the truth."
-                <br>- Observer</p>";
+      content = `
+        <p>"Remember: the signal weakens when close to the truth."<br>- Observer</p>
+        <p>Decryption Key: 91B3-A7XZ</p>
+      `;
       break;
     case "audio":
-      content = "<p><em>Playing voice log...</em><br>\"They're coming... the signal isn't safe...\"</p>";
+      content = `
+        <p><em>Playing voice log...</em><br>"They're coming... the signal isn't safe..."</p>
+        <audio controls>
+          <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+      `;
+      break;
+    case "calls":
+      content = `
+        <div class="call-entry">
+          <p><strong>Incoming call:</strong> Unknown Number</p>
+          <p>Time: 2:34 AM</p>
+          <p>Status: Missed</p>
+        </div>
+        <div class="call-entry">
+          <p><strong>Voicemail:</strong></p>
+          <p>"You were warned. This is your last chance."</p>
+        </div>
+      `;
+      break;
+    case "camera":
+      content = `
+        <p><strong>Camera App</strong></p>
+        <p>Error: Camera failed to load (static distortion effect).</p>
+        <p><em>Access denied. System integrity compromised.</em></p>
+      `;
       break;
     default:
       content = "<p>App not found.</p>";
