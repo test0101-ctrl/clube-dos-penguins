@@ -10,7 +10,7 @@ const lockTime = document.getElementById("lockTime");
 const endScreen = document.getElementById("endScreen");
 const screenElement = document.getElementById("screen"); // Get the screen element for effects
 
-const PASSCODE = "0420"; // The actual password - double-checked: it's "0420"
+const PASSCODE = "0420"; // The actual password - double-checked: it's "0420" (a string literal)
 const SAVE_KEY = "phoneMysterySave";
 
 // --- Game State ---
@@ -123,11 +123,11 @@ function unlockPhone() {
   // IMPORTANT: Use .trim() to remove any accidental leading/trailing whitespace
   const trimmedCode = code.trim();
 
-  // *** Extensive Debugging Logs ***
-  console.group("Unlock Attempt Details");
-  console.log("Input field raw value:", `'${code}'`);
-  console.log("Input field trimmed value:", `'${trimmedCode}'`);
-  console.log("Expected PASSCODE:", `'${PASSCODE}'`);
+  // *** Extensive Debugging Logs - Copy-paste these to me! ***
+  console.group("Unlock Attempt Details (Please provide this entire block)");
+  console.log("Input field raw value (inside quotes):", `'${code}'`);
+  console.log("Input field trimmed value (inside quotes):", `'${trimmedCode}'`);
+  console.log("Expected PASSCODE value (inside quotes):", `'${PASSCODE}'`);
   console.log("Type of trimmedCode:", typeof trimmedCode);
   console.log("Type of PASSCODE:", typeof PASSCODE);
   console.log("Length of trimmedCode:", trimmedCode.length);
@@ -461,8 +461,8 @@ function checkBrowserPassword() {
 
 function attemptCall(number) {
   // Ensure Alice's conversation is advanced and other critical clues found
-  if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1) {
- if (!gameState.callTriggered) { // Ensure this only triggers once
+if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1) {
+    if (!gameState.callTriggered) { // Ensure this only triggers once
       gameState.callTriggered = true;
       gameState.foundClues++; // Triggering call is a clue
       saveGame();
