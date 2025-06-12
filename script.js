@@ -38,6 +38,7 @@ function openApp(appName) {
       content = `
         <p><strong>Unknown:</strong> Did you find it yet?</p>
         <p><strong>Unknown:</strong> Don't trust what you see in the photos...</p>
+        <p><strong>Alice:</strong> 04/20 was your favorite number combo lol. Hope you remember that.</p>
       `;
       break;
     case "gallery":
@@ -55,6 +56,7 @@ function openApp(appName) {
       content = `
         <p>"Remember: the signal weakens when close to the truth."<br>- Observer</p>
         <p>Decryption Key: 91B3-A7XZ</p>
+        <p>Hint: Alice always used 0420 for silly things.</p>
       `;
       break;
     case "audio":
