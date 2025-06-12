@@ -67,11 +67,19 @@ function loadGame() {
     if (gameState.unlocked) {
       lockScreen.classList.add("hidden");
       homeScreen.classList.remove("hidden");
+      // Ensure clock updates to real time after unlock
+      updateClock();
+    } else {
+      // Ensure clock stays at 04:20 if still locked after loading
+      updateClock();
     }
     // Ensure the notes app's special button is visible if enough clues are found
     if (gameState.foundClues >= gameState.totalClues && document.getElementById("notesUnlockButton")) {
       document.getElementById("notesUnlockButton").classList.remove("hidden");
     }
+  } else {
+    // If no save, ensure clock starts at 04:20
+    updateClock();
   }
 }
 
@@ -95,7 +103,7 @@ function triggerShake() {
 
 // --- Clock ---
 function updateClock() {
-  // FIX: Always show 04:20 on lock screen unless unlocked
+  // FIX: Always show 04:20 on lock screen unless explicitly unlocked
   if (!gameState.unlocked) {
     lockTime.textContent = `04:20`;
   } else {
@@ -107,17 +115,24 @@ function updateClock() {
 }
 
 setInterval(updateClock, 1000);
-updateClock(); // Call initially to set the 04:20 time on load
+// Initial call to set time based on loadGame's state, or default 04:20
+// updateClock() is now called from loadGame() or immediately on script start if no save.
 
 // --- Unlock Phone ---
 function unlockPhone() {
-  const code = unlockInput.value;
+  // CRUCIAL FIX: Trim whitespace from input value
+  const code = unlockInput.value.trim();
+  console.log("Attempting unlock with code:", code); // Debugging
+  console.log("Expected passcode:", PASSCODE); // Debugging
+
   if (code === PASSCODE) {
     gameState.unlocked = true;
     saveGame();
     lockScreen.classList.add("hidden");
     homeScreen.classList.remove("hidden");
     showNotification("Phone Unlocked!");
+    // Update clock to real time after unlock
+    updateClock();
     // Trigger initial cinematic sequence or clue
     setTimeout(() => {
       showNotification("New message from 'Unknown'...");
@@ -445,7 +460,7 @@ function attemptCall(number) {
       saveGame();
       showNotification("Attempting call...");
       setTimeout(() => {
-        showNotification("Call failed. Voicemail activated. Listen closely.");
+        showNotification("Call failed. Voicemail acshowNotification("Call failed. Voicemail activated. Listen closely.");
         setTimeout(finalStep, 3000);
       }, 2000);
     }
@@ -458,4 +473,35 @@ function finalStep() {
   // Removed elapsed time check for easier playtesting
   if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1 && gameState.galleryNotesViewed && gameState.callTriggered) {
     appScreen.classList.add("hidden");
-    endScreen.classList
+    endScreen.classList.remove("hidden");
+    showNotification("Case Solved! Accessing final transmission...");
+  } else {
+    displayModal("You need to find all critical clues before initiating the final contact. Have you explored all messages and gallery notes, and attempted the call?", "Missing Clues!");
+  }
+}
+
+// Custom Modal for Messages (instead of alert)
+function displayModal(message, title = "Message") {
+  const modalHtml = `
+    <div id="customModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+      <div style="background: #222; padding: 20px; border-radius: 10px; border: 2px solid #00ff88; color: white; text-align: center; width: 80%; max-width: 400px;">
+        <h3 style="color: #00ff88; margin-top: 0;">${title}</h3>
+        <p>${message}</p>
+        <button onclick="document.getElementById('customModal').remove()" style="background-color: #00ff88; border: none; padding: 10px 20px; font-size: 1rem; color: #000; cursor: pointer; border-radius: 8px; margin-top: 15px;">OK</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+
+function resetGame() {
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
+
+// --- Initialize Game ---
+// Initial call to set time and load game state
+// This function will now be called only once at the very end of the script
+// to ensure all elements are defined before initial setup.
+loadGame();
