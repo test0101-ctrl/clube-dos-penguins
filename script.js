@@ -13,21 +13,43 @@ const screenElement = document.getElementById("screen"); // Get the screen eleme
 const PASSCODE = "0420";
 const SAVE_KEY = "phoneMysterySave";
 
+// --- Game State ---
 let gameState = {
   unlocked: false,
   viewedApps: [],
   foundClues: 0,
-  totalClues: 10, // Increased total clues for longer play
+  totalClues: 12, // Increased total clues for longer play with new interactions
   gameStartTime: Date.now(),
   secretMessageRead: false,
   browserPasswordFound: false,
   callTriggered: false,
+  notesNotificationShown: false, // NEW: Flag to prevent repeated notifications
+  galleryNotesViewed: false,
   // New: Message conversation states
-  messageStates: {
-    unknownThread: 0, // 0: initial, 1: after reading, 2: after sending response
-    aliceThread: 0,   // 0: initial, 1: after Alice's second message
+  conversations: {
+    'Unknown': {
+      messages: [
+        { sender: 'Unknown', text: "It's too late..." },
+        { sender: 'Rowan', text: "I'm leaving this phone behind. If someone finds it, follow the trail: gallery → files → notes." }
+      ],
+      currentStage: 0, // 0: initial, 1: after player reply
+      options: [
+        { text: "Who is this?", action: "replyToUnknown(1)" },
+        { text: "What happened?", action: "replyToUnknown(1)" }
+      ]
+    },
+    'Alice': {
+      messages: [
+        { sender: 'Alice', text: "You always used 0420 like a joke lol. Stay safe, idiot 💚" },
+        { sender: 'Alice', text: "Did you check the browser history? There was a weird link... starts with 'anomaly'" }
+      ],
+      currentStage: 0, // 0: initial, 1: after player reply to first set
+      options: [
+        { text: "I found the phone. What's going on?", action: "replyToAlice(1)" }
+      ]
+    }
+    // Add more contacts here if needed
   },
-  galleryNotesViewed: false, // To trigger new content after viewing specific gallery items
 };
 
 // --- Game State & Save System ---
@@ -38,12 +60,15 @@ function saveGame() {
 function loadGame() {
   const save = localStorage.getItem(SAVE_KEY);
   if (save) {
-    gameState = JSON.parse(save);
+    const loadedState = JSON.parse(save);
+    // Merge loaded state with default state to ensure new properties are added
+    gameState = { ...gameState, ...loadedState };
+
     if (gameState.unlocked) {
       lockScreen.classList.add("hidden");
       homeScreen.classList.remove("hidden");
     }
-    // Re-render certain UI elements based on loaded state if needed
+    // Ensure the notes app's special button is visible if enough clues are found
     if (gameState.foundClues >= gameState.totalClues && document.getElementById("notesUnlockButton")) {
       document.getElementById("notesUnlockButton").classList.remove("hidden");
     }
@@ -105,17 +130,19 @@ function unlockPhone() {
 
 // --- App Management ---
 function openApp(appName) {
-  // Mark app as viewed for clue tracking
+  // Mark app as viewed for clue tracking - only if not already viewed for this app
+  // This is a general app view, specific interactions will increment clues further
   if (!gameState.viewedApps.includes(appName)) {
     gameState.viewedApps.push(appName);
-    gameState.foundClues++;
+    gameState.foundClues++; // Viewing an app is a basic clue
     saveGame();
   }
 
-  // Check for game progression triggers
-  if (gameState.foundClues >= gameState.totalClues && !gameState.secretMessageRead) {
-    // Reveal a new clue or activate a button in the notes app
+  // BUG FIX: Only show notes notification once
+  if (gameState.foundClues >= gameState.totalClues && !gameState.notesNotificationShown) {
     showNotification("Something new appeared in Notes!");
+    gameState.notesNotificationShown = true;
+    saveGame(); // Save state of notification shown
     // Ensure the notes app's special button is visible if enough clues are found
     if (document.getElementById("notesUnlockButton")) {
         document.getElementById("notesUnlockButton").classList.remove("hidden");
@@ -133,45 +160,104 @@ function goHome() {
 }
 
 // --- Messaging System ---
-function sendMessage(thread, newState, messageText) {
-  gameState.messageStates[thread] = newState;
-  gameState.foundClues++; // Sending a message can also be a clue
-  saveGame();
-  showNotification(`Message sent in ${thread}!`);
-  renderApp('messages'); // Re-render messages to show new state
+function renderMessagesApp() {
+  let contactsHtml = `<h3>Messages</h3><div class="message-contact-list">`;
+  for (const contactName in gameState.conversations) {
+    const convo = gameState.conversations[contactName];
+    const lastMessage = convo.messages[convo.messages.length - 1];
+    contactsHtml += `
+      <div class="message-contact-item" onclick="openChat('${contactName}')">
+        <span>${contactName}</span>
+        <span class="status">${lastMessage.text.substring(0, 30)}...</span>
+      </div>
+    `;
+  }
+  contactsHtml += `</div>`;
+  appContent.innerHTML = contactsHtml;
 }
+
+function openChat(contactName) {
+  const convo = gameState.conversations[contactName];
+  let chatHtml = `
+    <h3>${contactName}</h3>
+    <div class="chat-view">
+      <div class="chat-messages" id="chatMessages">
+  `;
+  convo.messages.forEach(msg => {
+    const senderClass = msg.sender === 'Rowan' || msg.sender === 'Unknown' || msg.sender === 'Alice' ? 'sender-other' : 'sender-player';
+    chatHtml += `<div class="chat-message ${senderClass}">${msg.text}</div>`;
+  });
+  chatHtml += `</div>`; // Close chat-messages
+
+  // Add options if available for the current stage
+  if (convo.options && convo.options.length > 0) {
+    chatHtml += `<div class="message-options">`;
+    convo.options.forEach(option => {
+      chatHtml += `<button onclick="${option.action}">${option.text}</button>`;
+    });
+    chatHtml += `</div>`;
+  }
+  chatHtml += `</div>`; // Close chat-view
+  appContent.innerHTML = chatHtml;
+
+  // Scroll to bottom of messages
+  const chatMessagesDiv = document.getElementById('chatMessages');
+  if (chatMessagesDiv) {
+    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+  }
+}
+
+// Player replies will update conversation state and add new messages
+function replyToUnknown(stage) {
+  const convo = gameState.conversations['Unknown'];
+  if (stage === 1 && convo.currentStage === 0) {
+    convo.messages.push({ sender: 'You', text: "Who is this?" });
+    convo.currentStage = 1;
+    convo.options = []; // No more options for this thread, or add new ones
+    gameState.foundClues++; // Player interaction is a clue
+    saveGame();
+    showNotification("New message from 'Unknown'!"); // Subtle hint for next message
+    // Simulate a reply after a short delay
+    setTimeout(() => {
+        convo.messages.push({ sender: 'Unknown', text: "Your query has been noted. Do not interfere further." });
+        renderApp('messages'); // Re-render to show update
+        saveGame();
+    }, 1500);
+  }
+  openChat('Unknown'); // Always open chat after reply
+}
+
+function replyToAlice(stage) {
+  const convo = gameState.conversations['Alice'];
+  if (stage === 1 && convo.currentStage === 0) {
+    convo.messages.push({ sender: 'You', text: "I found the phone. What's going on?" });
+    convo.currentStage = 1;
+    convo.options = []; // No more options for this stage
+    gameState.foundClues++; // Player interaction is a clue
+    saveGame();
+    showNotification("Alice is typing...");
+    setTimeout(() => {
+        convo.messages.push({ sender: 'Alice', text: "OMG! You found it! Rowan was onto something big, a 'Project Simulacra'. They left more clues... look for 'Alpha_712' in images or audio logs. It's a password!" });
+        // Add more follow-up messages from Alice to extend conversation
+        setTimeout(() => {
+            convo.messages.push({ sender: 'Alice', text: "And there's a hidden sketch in the gallery. Rowan mentioned it had a new delivery route." });
+            convo.messages.push({ sender: 'Alice', text: "I'll try calling again later. Stay safe!" });
+            openChat('Alice'); // Re-render to show update
+            saveGame();
+        }, 1500); // Alice's second message
+    }, 1500); // Alice's first message
+  }
+  openChat('Alice'); // Always open chat after reply
+}
+
 
 // --- App Content Rendering ---
 function renderApp(appName) {
   let content = "";
   switch (appName) {
     case "messages":
-      content = `
-        <h3>Messages</h3>
-        <div class="message-thread">
-          <p><strong>Unknown:</strong> It's too late...</p>
-          <p><strong>Rowan:</strong> I'm leaving this phone behind. If someone finds it, follow the trail: gallery → files → notes.</p>
-          ${gameState.messageStates.unknownThread === 0 ? `
-            <div class="message-options">
-              <button onclick="sendMessage('unknownThread', 1, 'Who is this?')">Reply: Who is this?</button>
-              <button onclick="sendMessage('unknownThread', 1, 'What happened?')">Reply: What happened?</button>
-            </div>
-          ` : `<p class="player-message">You: Who is this?</p>`}
-        </div>
-        <div class="message-thread" style="margin-top: 15px;">
-          <p><strong>Alice:</strong> You always used 0420 like a joke lol. Stay safe, idiot 💚</p>
-          ${gameState.messageStates.aliceThread === 0 ? `<p><strong>Alice:</strong> Did you check the browser history? There was a weird link... starts with 'anomaly'</p>` : ''}
-          ${gameState.messageStates.aliceThread === 1 ? `<p class="player-message">You: I found the phone. What's going on?</p>
-            <p><strong>Alice:</strong> OMG! You found it! Rowan was onto something big, a 'Project Simulacra'. They left more clues... look for 'Alpha_712' in images or audio logs. It's a password!</p>` : `
-            <div class="message-options">
-              <button onclick="sendMessage('aliceThread', 1, 'I found the phone. What's going on?')">Reply: I found the phone. What's going on?</button>
-            </div>
-          `}
-        </div>
-        ${gameState.secretMessageRead ? '<p><strong>System Alert:</strong> Decrypted message found in "SECRET/ROWAN/message.txt".</p>' : ''}
-        ${gameState.callTriggered ? '<p><strong>Incoming Call:</strong> +41 333 940 2019... (Missed)</p>' : ''}
-      `;
-      break;
+      renderMessagesApp(); // Calls the new rendering function for messages
+      return; // Exit after rendering messages app
     case "gallery":
       content = `
         <h3>Gallery</h3>
@@ -234,6 +320,7 @@ function renderApp(appName) {
         <h3>Audio</h3>
         <p><em>Encrypted voice log #4</em></p>
         <audio controls>
+          <!-- TODO: Place your audio file here: <source src="assets/audio/log4_decoded.mp3" type="audio/mpeg"> -->
           Your browser does not support the audio element.
         </audio>
         <p><strong>Audio Log Text:</strong> "...I repeat: do NOT trust the agency. Project Simulacra is alive. They are tracking devices with subnetwork '712'. The override code is found in the main browser history. It's an old agency password, begins with 'alpha'..."</p>
@@ -268,12 +355,12 @@ function renderApp(appName) {
         <button onclick="resetGame()">🔁 Reset Game</button>
       `;
       break;
-    case "browser": // New App
+    case "browser":
       content = `
         <h3>Browser History</h3>
         <p><strong>Search:</strong> "Project Simulacra anomaly"</p>
         <div class="file-entry">
-          <p><strong>Site:</strong> <a href="#" onclick="openSecretSite('anomaly-research.net', 'alpha_712')">anomaly-research.net/secret-data</a></p>
+          <p><strong>Site:</strong> <a href="#" onclick="checkBrowserPassword()">anomaly-research.net/secret-data</a></p>
           <p><em>Password protected.</em></p>
           <input type="password" id="browserPassword" placeholder="Enter password" />
           <button onclick="checkBrowserPassword()">Access Site</button>
@@ -292,23 +379,28 @@ function renderApp(appName) {
 // --- Specific Game Actions ---
 
 function triggerGalleryNote() {
-    gameState.galleryNotesViewed = true;
-    gameState.foundClues++;
-    saveGame();
-    showNotification("New note discovered in Gallery!");
+    if (!gameState.galleryNotesViewed) { // Ensure this only counts as a clue once
+        gameState.galleryNotesViewed = true;
+        gameState.foundClues++;
+        saveGame();
+        showNotification("New note discovered in Gallery!");
+    }
     renderApp('gallery'); // Re-render gallery to show new content
 }
 
 function decryptFile(fileName) {
   if (fileName === "missing.txt") {
-    if (gameState.viewedApps.includes("gallery") && gameState.viewedApps.includes("audio") && gameState.viewedApps.includes("camera") && gameState.messageStates.aliceThread === 1) { // Requires Alice's second message now
-      gameState.secretMessageRead = true;
-      gameState.foundClues++; // Count as another clue
-      saveGame();
-      showNotification("File Decrypted: New information in 'missing.txt'!");
+    // Requires Alice's conversation to be advanced to stage 1 (where she gives the password hint)
+    if (gameState.viewedApps.includes("gallery") && gameState.viewedApps.includes("audio") && gameState.viewedApps.includes("camera") && gameState.conversations.Alice.currentStage >= 1) {
+      if (!gameState.secretMessageRead) { // Ensure clue is only incremented once
+        gameState.secretMessageRead = true;
+        gameState.foundClues++;
+        saveGame();
+        showNotification("File Decrypted: New information in 'missing.txt'!");
+      }
       renderApp("files"); // Re-render the app to show new content
     } else {
-      showNotification("Insufficient data to decrypt. You need more clues, try talking to Alice in messages!");
+      displayModal("Insufficient data to decrypt. You need more clues, try talking to Alice in messages!", "Decryption Failed");
     }
   }
 }
@@ -319,11 +411,13 @@ function checkBrowserPassword() {
   const enteredPassword = passwordInput.value;
 
   if (enteredPassword === "alpha_712") { // Password from camera glitch and audio log
-    gameState.browserPasswordFound = true;
-    gameState.foundClues++; // Count as another clue
-    saveGame();
+    if (!gameState.browserPasswordFound) { // Ensure clue is only incremented once
+      gameState.browserPasswordFound = true;
+      gameState.foundClues++;
+      saveGame();
+      showNotification("Critical data accessed! Check Notes or Calls for next step.");
+    }
     errorDisplay.textContent = "Access Granted! New information found.";
-    showNotification("Critical data accessed! Check Notes or Calls for next step.");
     passwordInput.disabled = true;
     document.querySelector('#browser button').disabled = true;
     if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead) {
@@ -336,54 +430,35 @@ function checkBrowserPassword() {
 }
 
 function attemptCall(number) {
-  if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.messageStates.aliceThread === 1) { // Ensure Alice's conversation is advanced
-    gameState.callTriggered = true;
-    saveGame();
-    showNotification("Attempting call...");
-    setTimeout(() => {
-      showNotification("Call failed. Voicemail activated. Listen closely.");
-      setTimeout(finalStep, 3000);
-    }, 2000);
+  // Ensure Alice's conversation is advanced and other critical clues found
+  if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1) {
+    if (!gameState.callTriggered) { // Ensure this only triggers once
+      gameState.callTriggered = true;
+      gameState.foundClues++; // Triggering call is a clue
+      saveGame();
+      showNotification("Attempting call...");
+      setTimeout(() => {
+        showNotification("Call failed. Voicemail activated. Listen closely.");
+        setTimeout(finalStep, 3000);
+      }, 2000);
+    }
   } else {
-    showNotification("No one is answering. You need more information to make this call matter, especially from Alice.");
+    displayModal("No one is answering. You need more information to make this call matter, especially from Alice's messages.", "Call Failed");
   }
 }
 
 function finalStep() {
-  const elapsed = (Date.now() - gameState.gameStartTime) / 1000;
-
-  // Ensure minimum playtime and all critical clues are found, including new interactive steps
-  if (elapsed >= 600 && gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.messageStates.aliceThread === 1 && gameState.galleryNotesViewed) {
+  // Removed elapsed time check for easier playtesting
+  if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1 && gameState.galleryNotesViewed && gameState.callTriggered) {
     appScreen.classList.add("hidden");
     endScreen.classList.remove("hidden");
     showNotification("Case Solved! Accessing final transmission...");
-  } else if (elapsed < 600) {
-    displayModal(`You need to investigate more clues and play for at least ${Math.ceil((600 - elapsed) / 60)} more minutes.`, "Hold On!");
   } else {
-    displayModal("You need to find all critical clues before initiating the final contact. Have you explored all messages and gallery notes?", "Missing Clues!");
+    displayModal("You need to find all critical clues before initiating the final contact. Have you explored all messages and gallery notes, and attempted the call?", "Missing Clues!");
   }
 }
 
 // Custom Modal for Messages (instead of alert)
 function displayModal(message, title = "Message") {
   const modalHtml = `
-    <div id="customModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-      <div style="background: #222; padding: 20px; border-radius: 10px; border: 2px solid #00ff88; color: white; text-align: center; width: 80%; max-width: 400px;">
-        <h3 style="color: #00ff88; margin-top: 0;">${title}</h3>
-        <p>${message}</p>
-        <button onclick="document.getElementById('customModal').remove()" style="background-color: #00ff88; border: none; padding: 10px 20px; font-size: 1rem; color: #000; cursor: pointer; border-radius: 8px; margin-top: 15px;">OK</button>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
-
-
-function resetGame() {
-  localStorage.removeItem(SAVE_KEY);
-  location.reload();
-}
-
-// --- Initialize Game ---
-loadGame();
-        
+    <div id="customModal" style="position: fixed; top: 0; left: 0; width: 100%; he
