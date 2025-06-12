@@ -10,7 +10,7 @@ const lockTime = document.getElementById("lockTime");
 const endScreen = document.getElementById("endScreen");
 const screenElement = document.getElementById("screen"); // Get the screen element for effects
 
-const PASSCODE = "0420"; // The actual password
+const PASSCODE = "0420"; // The actual password - double-checked: it's "0420"
 const SAVE_KEY = "phoneMysterySave";
 
 // --- Game State ---
@@ -67,7 +67,7 @@ function loadGame() {
     if (gameState.unlocked) {
       lockScreen.classList.add("hidden");
       homeScreen.classList.remove("hidden");
-      // Ensure clock updates to real time after unlock
+      // Ensure clock updates to real time after unlock if loaded as unlocked
       updateClock();
     } else {
       // Ensure clock stays at 04:20 if still locked after loading
@@ -114,24 +114,34 @@ function updateClock() {
   }
 }
 
-setInterval(updateClock, 1000);
-// Initial call to set time based on loadGame's state, or default 04:20
-// updateClock() is now called from loadGame() or immediately on script start if no save.
+setInterval(updateClock, 1000); // Keep interval running
+
 
 // --- Unlock Phone ---
 function unlockPhone() {
-  // CRUCIAL FIX: Trim whitespace from input value
-  const code = unlockInput.value.trim();
-  console.log("Attempting unlock with code:", code); // Debugging
-  console.log("Expected passcode:", PASSCODE); // Debugging
+  const code = unlockInput.value;
+  // IMPORTANT: Use .trim() to remove any accidental leading/trailing whitespace
+  const trimmedCode = code.trim();
 
-  if (code === PASSCODE) {
+  // *** Extensive Debugging Logs ***
+  console.group("Unlock Attempt Details");
+  console.log("Input field raw value:", `'${code}'`);
+  console.log("Input field trimmed value:", `'${trimmedCode}'`);
+  console.log("Expected PASSCODE:", `'${PASSCODE}'`);
+  console.log("Type of trimmedCode:", typeof trimmedCode);
+  console.log("Type of PASSCODE:", typeof PASSCODE);
+  console.log("Length of trimmedCode:", trimmedCode.length);
+  console.log("Length of PASSCODE:", PASSCODE.length);
+  console.log("Comparison (trimmedCode === PASSCODE):", trimmedCode === PASSCODE);
+  console.groupEnd();
+
+  if (trimmedCode === PASSCODE) {
     gameState.unlocked = true;
     saveGame();
     lockScreen.classList.add("hidden");
     homeScreen.classList.remove("hidden");
     showNotification("Phone Unlocked!");
-    // Update clock to real time after unlock
+    // Immediately update clock to real time after successful unlock
     updateClock();
     // Trigger initial cinematic sequence or clue
     setTimeout(() => {
@@ -160,8 +170,6 @@ function openApp(appName) {
     gameState.notesNotificationShown = true;
     saveGame(); // Save state of notification shown
     // Ensure the notes app's special button is visible if enough clues are found
-    // This part should technically be handled by renderApp('notes') or notes specific logic
-    // but leaving here as a fallback or if other apps trigger it
     if (document.getElementById("notesUnlockButton")) {
         document.getElementById("notesUnlockButton").classList.remove("hidden");
     }
@@ -454,13 +462,13 @@ function checkBrowserPassword() {
 function attemptCall(number) {
   // Ensure Alice's conversation is advanced and other critical clues found
   if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1) {
-    if (!gameState.callTriggered) { // Ensure this only triggers once
+ if (!gameState.callTriggered) { // Ensure this only triggers once
       gameState.callTriggered = true;
       gameState.foundClues++; // Triggering call is a clue
       saveGame();
       showNotification("Attempting call...");
       setTimeout(() => {
-        showNotification("Call failed. Voicemail acshowNotification("Call failed. Voicemail activated. Listen closely.");
+        showNotification("Call failed. Voicemail activated. Listen closely.");
         setTimeout(finalStep, 3000);
       }, 2000);
     }
@@ -501,7 +509,7 @@ function resetGame() {
 }
 
 // --- Initialize Game ---
-// Initial call to set time and load game state
-// This function will now be called only once at the very end of the script
-// to ensure all elements are defined before initial setup.
+// This ensures updateClock is called immediately, before loadGame,
+// so the 04:20 time is shown from the very beginning.
+updateClock();
 loadGame();
