@@ -1,4 +1,4 @@
-// script.js (expanded logic for cinematic effects, save system, new ending trigger)
+// script.js (expanded logic for cinematic effects, save system, new ending trigger, and interactivity)
 
 const lockScreen = document.getElementById("lockScreen");
 const homeScreen = document.getElementById("homeScreen");
@@ -17,11 +17,17 @@ let gameState = {
   unlocked: false,
   viewedApps: [],
   foundClues: 0,
-  totalClues: 8, // Increased total clues for longer play
+  totalClues: 10, // Increased total clues for longer play
   gameStartTime: Date.now(),
   secretMessageRead: false,
   browserPasswordFound: false,
   callTriggered: false,
+  // New: Message conversation states
+  messageStates: {
+    unknownThread: 0, // 0: initial, 1: after reading, 2: after sending response
+    aliceThread: 0,   // 0: initial, 1: after Alice's second message
+  },
+  galleryNotesViewed: false, // To trigger new content after viewing specific gallery items
 };
 
 // --- Game State & Save System ---
@@ -36,6 +42,10 @@ function loadGame() {
     if (gameState.unlocked) {
       lockScreen.classList.add("hidden");
       homeScreen.classList.remove("hidden");
+    }
+    // Re-render certain UI elements based on loaded state if needed
+    if (gameState.foundClues >= gameState.totalClues && document.getElementById("notesUnlockButton")) {
+      document.getElementById("notesUnlockButton").classList.remove("hidden");
     }
   }
 }
@@ -122,22 +132,49 @@ function goHome() {
   homeScreen.classList.remove("hidden");
 }
 
+// --- Messaging System ---
+function sendMessage(thread, newState, messageText) {
+  gameState.messageStates[thread] = newState;
+  gameState.foundClues++; // Sending a message can also be a clue
+  saveGame();
+  showNotification(`Message sent in ${thread}!`);
+  renderApp('messages'); // Re-render messages to show new state
+}
+
 // --- App Content Rendering ---
 function renderApp(appName) {
   let content = "";
   switch (appName) {
     case "messages":
       content = `
-        <p><strong>Unknown:</strong> It's too late...</p>
-        <p><strong>Rowan:</strong> I'm leaving this phone behind. If someone finds it, follow the trail: gallery → files → notes.</p>
-        <p><strong>Alice:</strong> You always used 0420 like a joke lol. Stay safe, idiot 💚</p>
-        <p><strong>Alice:</strong> Did you check the browser history? There was a weird link... starts with 'anomaly'</p>
+        <h3>Messages</h3>
+        <div class="message-thread">
+          <p><strong>Unknown:</strong> It's too late...</p>
+          <p><strong>Rowan:</strong> I'm leaving this phone behind. If someone finds it, follow the trail: gallery → files → notes.</p>
+          ${gameState.messageStates.unknownThread === 0 ? `
+            <div class="message-options">
+              <button onclick="sendMessage('unknownThread', 1, 'Who is this?')">Reply: Who is this?</button>
+              <button onclick="sendMessage('unknownThread', 1, 'What happened?')">Reply: What happened?</button>
+            </div>
+          ` : `<p class="player-message">You: Who is this?</p>`}
+        </div>
+        <div class="message-thread" style="margin-top: 15px;">
+          <p><strong>Alice:</strong> You always used 0420 like a joke lol. Stay safe, idiot 💚</p>
+          ${gameState.messageStates.aliceThread === 0 ? `<p><strong>Alice:</strong> Did you check the browser history? There was a weird link... starts with 'anomaly'</p>` : ''}
+          ${gameState.messageStates.aliceThread === 1 ? `<p class="player-message">You: I found the phone. What's going on?</p>
+            <p><strong>Alice:</strong> OMG! You found it! Rowan was onto something big, a 'Project Simulacra'. They left more clues... look for 'Alpha_712' in images or audio logs. It's a password!</p>` : `
+            <div class="message-options">
+              <button onclick="sendMessage('aliceThread', 1, 'I found the phone. What's going on?')">Reply: I found the phone. What's going on?</button>
+            </div>
+          `}
+        </div>
         ${gameState.secretMessageRead ? '<p><strong>System Alert:</strong> Decrypted message found in "SECRET/ROWAN/message.txt".</p>' : ''}
         ${gameState.callTriggered ? '<p><strong>Incoming Call:</strong> +41 333 940 2019... (Missed)</p>' : ''}
       `;
       break;
     case "gallery":
       content = `
+        <h3>Gallery</h3>
         <div class="image-entry">
           <p><strong>📸 Clue #1:</strong> File name: X-19B4.CAM - shows blurred screen with folder: <em>SECRET/ROWAN</em></p>
           <img src="https://placehold.co/300x200/222222/00ff88?text=SECRET/ROWAN+(BLURRED)" alt="Blurred folder image" />
@@ -148,10 +185,26 @@ function renderApp(appName) {
           <img src="https://placehold.co/300x200/000000/cccccc?text=STATIC+712" alt="Corrupted static image" />
           <p><em>(Examine closely: a sequence of numbers is barely visible: 712)</em></p>
         </div>
+        <div class="image-entry">
+          <p><strong>🏞️ Personal Photo:</strong> "Camping trip last summer. Good times."</p>
+          <img src="https://placehold.co/300x200/888800/FFFFFF?text=Camping+Trip" alt="Camping Trip" />
+        </div>
+        <div class="image-entry">
+          <p><strong>🏠 Personal Photo:</strong> "My old apartment."</p>
+          <img src="https://placehold.co/300x200/444444/FFFFFF?text=Old+Apartment" alt="Old Apartment" />
+        </div>
+        ${gameState.galleryNotesViewed ? `
+          <div class="image-entry">
+            <p><strong>📝 Note from Rowan:</strong> "Found this. It's the old warehouse, new delivery route."</p>
+            <img src="https://placehold.co/300x200/FF00FF/000000?text=Warehouse+Sketch" alt="Warehouse Sketch" />
+            <p><em>(A rough sketch of a building with arrows, one pointing to 'Dock B')</em></p>
+          </div>
+        ` : `<button onclick="triggerGalleryNote()">Load More Personal Photos</button>`}
       `;
       break;
     case "files":
       content = `
+        <h3>Files</h3>
         <div class="file-entry">
           <p><strong>📁 SECRET/ROWAN/missing.txt</strong></p>
           ${gameState.secretMessageRead ? '<p>"My contact, Alice, knows the full story. Her number is in my calls. The final piece is in the browser history, under a search for "Project Simulacra anomaly". The password for that entry starts with \'alpha\'."</p>' : '<p>"Operation Echo failed. I suspect I\'m being watched. The phone holds evidence, but it’s encrypted in layers."</p><button onclick="decryptFile(\'missing.txt\')">Decrypt</button>'}
@@ -168,17 +221,19 @@ function renderApp(appName) {
       break;
     case "notes":
       content = `
+        <h3>Notes</h3>
         <p><strong>🔑 Note 1:</strong> "Files opened. Final step: call your last contact... or override timer if all clues found."</p>
         <p><strong>🔑 Note 2:</strong> "The camera shows what's hidden. Check when it glitches."</p>
         <p><strong>🔑 Note 3:</strong> "The browser stores all secrets. Look for 'anomaly' and a three-digit code."</p>
+        <p><strong>🔑 Note 4:</strong> "Alice's messages hold more recent intel. Reply to her to get the full picture."</p>
         <button id="notesUnlockButton" class="${gameState.foundClues >= gameState.totalClues ? '' : 'hidden'}" onclick="finalStep()">Initiate Final Contact</button>
       `;
       break;
     case "audio":
       content = `
+        <h3>Audio</h3>
         <p><em>Encrypted voice log #4</em></p>
         <audio controls>
-          <!-- TODO: Place your audio file here. For example: <source src="assets/audio/log4_decoded.mp3" type="audio/mpeg"> -->
           Your browser does not support the audio element.
         </audio>
         <p><strong>Audio Log Text:</strong> "...I repeat: do NOT trust the agency. Project Simulacra is alive. They are tracking devices with subnetwork '712'. The override code is found in the main browser history. It's an old agency password, begins with 'alpha'..."</p>
@@ -187,6 +242,7 @@ function renderApp(appName) {
       break;
     case "calls":
       content = `
+        <h3>Calls</h3>
         <div class="call-entry">
           <p><strong>📞 Missed:</strong> +41 333 940 2019 (Alice)</p>
           <p><strong>📞 Voicemail:</strong> "Rowan, meet me at the old station... they’re watching the networks. I found something important about the 'alpha' network password."</p>
@@ -196,6 +252,7 @@ function renderApp(appName) {
       break;
     case "camera":
       content = `
+        <h3>Camera</h3>
         <p><strong>Camera Glitch Detected</strong></p>
         <img src="https://placehold.co/300x200/FF0000/FFFFFF?text=GLITCH+SIMULACRA+%0AALPHA_712" alt="Camera Glitch showing SIMULACRA and Alpha_712" />
         <p>Glitched overlay reveals word: "SIMULACRA" in lower right corner. A hidden message flickers: "Alpha_712"</p>
@@ -203,6 +260,7 @@ function renderApp(appName) {
       break;
     case "settings":
       content = `
+        <h3>Settings</h3>
         <p><strong>Debug Menu:</strong></p>
         <p>✔️ Diagnostics: Phone integrity low</p>
         <p>✔️ Owner ID: ROWAN.LAST.SIGNAL</p>
@@ -233,17 +291,24 @@ function renderApp(appName) {
 
 // --- Specific Game Actions ---
 
+function triggerGalleryNote() {
+    gameState.galleryNotesViewed = true;
+    gameState.foundClues++;
+    saveGame();
+    showNotification("New note discovered in Gallery!");
+    renderApp('gallery'); // Re-render gallery to show new content
+}
+
 function decryptFile(fileName) {
   if (fileName === "missing.txt") {
-    // This could be unlocked by finding a specific clue, like the "712" from the gallery
-    if (gameState.viewedApps.includes("gallery") && gameState.viewedApps.includes("audio") && gameState.viewedApps.includes("camera")) {
+    if (gameState.viewedApps.includes("gallery") && gameState.viewedApps.includes("audio") && gameState.viewedApps.includes("camera") && gameState.messageStates.aliceThread === 1) { // Requires Alice's second message now
       gameState.secretMessageRead = true;
       gameState.foundClues++; // Count as another clue
       saveGame();
       showNotification("File Decrypted: New information in 'missing.txt'!");
       renderApp("files"); // Re-render the app to show new content
     } else {
-      showNotification("Insufficient data to decrypt. Look for more clues!");
+      showNotification("Insufficient data to decrypt. You need more clues, try talking to Alice in messages!");
     }
   }
 }
@@ -258,12 +323,9 @@ function checkBrowserPassword() {
     gameState.foundClues++; // Count as another clue
     saveGame();
     errorDisplay.textContent = "Access Granted! New information found.";
-    // This could trigger the final step or reveal a crucial final clue
     showNotification("Critical data accessed! Check Notes or Calls for next step.");
-    // Re-render browser content or show new button
     passwordInput.disabled = true;
     document.querySelector('#browser button').disabled = true;
-    // Potentially auto-trigger final step if all conditions met
     if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead) {
       setTimeout(finalStep, 2000); // Auto-trigger end after 2 seconds
     }
@@ -274,34 +336,31 @@ function checkBrowserPassword() {
 }
 
 function attemptCall(number) {
-  // This could be the final trigger if all other clues are found
-  if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead) {
+  if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.messageStates.aliceThread === 1) { // Ensure Alice's conversation is advanced
     gameState.callTriggered = true;
     saveGame();
     showNotification("Attempting call...");
     setTimeout(() => {
       showNotification("Call failed. Voicemail activated. Listen closely.");
-      // This could then lead to the end screen after a short delay
       setTimeout(finalStep, 3000);
     }, 2000);
   } else {
-    showNotification("No one is answering. You need more information to make this call matter.");
+    showNotification("No one is answering. You need more information to make this call matter, especially from Alice.");
   }
 }
 
 function finalStep() {
   const elapsed = (Date.now() - gameState.gameStartTime) / 1000;
 
-  // Ensure minimum playtime and all critical clues are found
-  if (elapsed >= 600 && gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead) {
+  // Ensure minimum playtime and all critical clues are found, including new interactive steps
+  if (elapsed >= 600 && gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.messageStates.aliceThread === 1 && gameState.galleryNotesViewed) {
     appScreen.classList.add("hidden");
     endScreen.classList.remove("hidden");
     showNotification("Case Solved! Accessing final transmission...");
   } else if (elapsed < 600) {
-    // Using a modal instead of alert for better UX
     displayModal(`You need to investigate more clues and play for at least ${Math.ceil((600 - elapsed) / 60)} more minutes.`, "Hold On!");
   } else {
-    displayModal("You need to find all critical clues before initiating the final contact.", "Missing Clues!");
+    displayModal("You need to find all critical clues before initiating the final contact. Have you explored all messages and gallery notes?", "Missing Clues!");
   }
 }
 
@@ -327,4 +386,4 @@ function resetGame() {
 
 // --- Initialize Game ---
 loadGame();
-          
+        
