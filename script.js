@@ -5,8 +5,10 @@ const appContent = document.getElementById("appContent");
 const unlockInput = document.getElementById("unlockInput");
 const unlockError = document.getElementById("unlockError");
 const lockTime = document.getElementById("lockTime");
+const endScreen = document.getElementById("endScreen");
 
 const PASSCODE = "0420";
+let foundOwner = false;
 
 function updateClock() {
   const now = new Date();
@@ -36,56 +38,70 @@ function openApp(appName) {
   switch (appName) {
     case "messages":
       content = `
-        <p><strong>Unknown:</strong> Did you find it yet?</p>
-        <p><strong>Unknown:</strong> Don't trust what you see in the photos...</p>
-        <p><strong>Alice:</strong> 04/20 was your favorite number combo lol. Hope you remember that.</p>
+        <p><strong>Unknown:</strong> It's too late...</p>
+        <p><strong>Rowan:</strong> I'm leaving this phone behind. If someone finds it, follow the trail: gallery → files → notes.</p>
+        <p><strong>Alice:</strong> You always used 0420 like a joke lol. Stay safe, idiot 💚</p>
       `;
       break;
     case "gallery":
       content = `
         <div class="image-entry">
-          <p><strong>📸 [Corrupted image]</strong></p>
-          <p>🗺 Coordinates found: 51.5074° N, 0.1278° W</p>
+          <p><strong>📸 Clue #1:</strong> File name: X-19B4.CAM - shows blurred screen with folder: <em>SECRET/ROWAN</em></p>
+          <img src="https://via.placeholder.com/150/111111/00ff88?text=Clue1" alt="Clue 1" />
         </div>
         <div class="image-entry">
-          <img src="https://via.placeholder.com/150/000000/00ff88?text=Distorted" alt="Corrupted" />
+          <p>📌 Hidden in metadata: date "04/19", coord: 45.0° N, 122.0° W</p>
+        </div>
+      `;
+      break;
+    case "files":
+      content = `
+        <div class="file-entry">
+          <p><strong>📁 SECRET/ROWAN/missing.txt</strong></p>
+          <p>"Operation Echo failed. I suspect I'm being watched. The phone holds evidence, but it’s encrypted in layers."</p>
+        </div>
+        <div class="file-entry">
+          <p><strong>📁 SYSTEM/log_0420.sys</strong></p>
+          <p>Audio pattern anomaly. Warning: unauthorized file tampering detected.</p>
         </div>
       `;
       break;
     case "notes":
       content = `
-        <p>"Remember: the signal weakens when close to the truth."<br>- Observer</p>
-        <p>Decryption Key: 91B3-A7XZ</p>
-        <p>Hint: Alice always used 0420 for silly things.</p>
+        <p><strong>🔑 Note 1:</strong> "Files opened. Final step: call your last contact... but only at 04:20."</p>
+        <p><strong>🔑 Note 2:</strong> "The camera shows what's hidden. Check when it glitches."</p>
+        <button onclick="finalStep()">Make final call</button>
       `;
       break;
     case "audio":
       content = `
-        <p><em>Playing voice log...</em><br>"They're coming... the signal isn't safe..."</p>
+        <p><em>Encrypted voice log #4</em></p>
         <audio controls>
           <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-          Your browser does not support the audio element.
         </audio>
+        <p>"...I repeat: do NOT trust the agency. Project Simulacra is alive."</p>
       `;
       break;
     case "calls":
       content = `
         <div class="call-entry">
-          <p><strong>Incoming call:</strong> Unknown Number</p>
-          <p>Time: 2:34 AM</p>
-          <p>Status: Missed</p>
-        </div>
-        <div class="call-entry">
-          <p><strong>Voicemail:</strong></p>
-          <p>"You were warned. This is your last chance."</p>
+          <p><strong>📞 Missed:</strong> +41 333 940 2019</p>
+          <p><strong>📞 Voicemail:</strong> "Rowan, meet me at the old station... they’re watching the networks."</p>
         </div>
       `;
       break;
     case "camera":
       content = `
-        <p><strong>Camera App</strong></p>
-        <p>Error: Camera failed to load (static distortion effect).</p>
-        <p><em>Access denied. System integrity compromised.</em></p>
+        <p><strong>Camera Glitch Detected</strong></p>
+        <p>Glitched overlay reveals word: "SIMULACRA" in lower right corner.</p>
+      `;
+      break;
+    case "settings":
+      content = `
+        <p><strong>Debug Menu:</strong></p>
+        <p>✔️ Diagnostics: Phone integrity low</p>
+        <p>✔️ Owner ID: ROWAN.LAST.SIGNAL</p>
+        <p>✔️ Final coordinate ping: 04/20 04:20</p>
       `;
       break;
     default:
@@ -95,7 +111,19 @@ function openApp(appName) {
   appContent.innerHTML = content;
 }
 
+function finalStep() {
+  const now = new Date();
+  if (now.getHours() === 4 && now.getMinutes() === 20) {
+    foundOwner = true;
+    appScreen.classList.add("hidden");
+    endScreen.classList.remove("hidden");
+  } else {
+    alert("The call only works at 04:20. Try again later.");
+  }
+}
+
 function goHome() {
   appScreen.classList.add("hidden");
   homeScreen.classList.remove("hidden");
-}
+        }
+        
