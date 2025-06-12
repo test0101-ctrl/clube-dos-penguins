@@ -10,7 +10,7 @@ const lockTime = document.getElementById("lockTime");
 const endScreen = document.getElementById("endScreen");
 const screenElement = document.getElementById("screen"); // Get the screen element for effects
 
-const PASSCODE = "0420";
+const PASSCODE = "0420"; // The actual password
 const SAVE_KEY = "phoneMysterySave";
 
 // --- Game State ---
@@ -23,9 +23,9 @@ let gameState = {
   secretMessageRead: false,
   browserPasswordFound: false,
   callTriggered: false,
-  notesNotificationShown: false, // NEW: Flag to prevent repeated notifications
+  notesNotificationShown: false, // Flag to prevent repeated notes notifications
   galleryNotesViewed: false,
-  // New: Message conversation states
+  // Message conversation states
   conversations: {
     'Unknown': {
       messages: [
@@ -95,8 +95,9 @@ function triggerShake() {
 
 // --- Clock ---
 function updateClock() {
+  // FIX: Always show 04:20 on lock screen unless unlocked
   if (!gameState.unlocked) {
-    lockTime.textContent = `04:20`; // Fixed to 04:20 until unlocked
+    lockTime.textContent = `04:20`;
   } else {
     const now = new Date();
     const hrs = String(now.getHours()).padStart(2, '0');
@@ -106,7 +107,7 @@ function updateClock() {
 }
 
 setInterval(updateClock, 1000);
-updateClock(); // Call initially to set the 04:20 time
+updateClock(); // Call initially to set the 04:20 time on load
 
 // --- Unlock Phone ---
 function unlockPhone() {
@@ -138,12 +139,14 @@ function openApp(appName) {
     saveGame();
   }
 
-  // BUG FIX: Only show notes notification once
+  // BUG FIX: Only show notes notification once when threshold is met
   if (gameState.foundClues >= gameState.totalClues && !gameState.notesNotificationShown) {
     showNotification("Something new appeared in Notes!");
     gameState.notesNotificationShown = true;
     saveGame(); // Save state of notification shown
     // Ensure the notes app's special button is visible if enough clues are found
+    // This part should technically be handled by renderApp('notes') or notes specific logic
+    // but leaving here as a fallback or if other apps trigger it
     if (document.getElementById("notesUnlockButton")) {
         document.getElementById("notesUnlockButton").classList.remove("hidden");
     }
@@ -156,6 +159,7 @@ function openApp(appName) {
 
 function goHome() {
   appScreen.classList.add("hidden");
+  appScreen.scrollTop = 0; // Reset scroll position when going home
   homeScreen.classList.remove("hidden");
 }
 
@@ -164,6 +168,7 @@ function renderMessagesApp() {
   let contactsHtml = `<h3>Messages</h3><div class="message-contact-list">`;
   for (const contactName in gameState.conversations) {
     const convo = gameState.conversations[contactName];
+    // Display last message from the last actor (could be player or other)
     const lastMessage = convo.messages[convo.messages.length - 1];
     contactsHtml += `
       <div class="message-contact-item" onclick="openChat('${contactName}')">
@@ -179,7 +184,7 @@ function renderMessagesApp() {
 function openChat(contactName) {
   const convo = gameState.conversations[contactName];
   let chatHtml = `
-    <h3>${contactName}</h3>
+    <h3 style="margin-top:0;">${contactName}</h3>
     <div class="chat-view">
       <div class="chat-messages" id="chatMessages">
   `;
@@ -200,11 +205,13 @@ function openChat(contactName) {
   chatHtml += `</div>`; // Close chat-view
   appContent.innerHTML = chatHtml;
 
-  // Scroll to bottom of messages
-  const chatMessagesDiv = document.getElementById('chatMessages');
-  if (chatMessagesDiv) {
-    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-  }
+  // Scroll to bottom of messages after rendering
+  setTimeout(() => {
+    const chatMessagesDiv = document.getElementById('chatMessages');
+    if (chatMessagesDiv) {
+      chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    }
+  }, 50); // Small delay to ensure content is rendered
 }
 
 // Player replies will update conversation state and add new messages
@@ -220,7 +227,7 @@ function replyToUnknown(stage) {
     // Simulate a reply after a short delay
     setTimeout(() => {
         convo.messages.push({ sender: 'Unknown', text: "Your query has been noted. Do not interfere further." });
-        renderApp('messages'); // Re-render to show update
+        openChat('Unknown'); // Re-render to show update
         saveGame();
     }, 1500);
   }
@@ -451,14 +458,4 @@ function finalStep() {
   // Removed elapsed time check for easier playtesting
   if (gameState.foundClues >= gameState.totalClues && gameState.browserPasswordFound && gameState.secretMessageRead && gameState.conversations.Alice.currentStage >= 1 && gameState.galleryNotesViewed && gameState.callTriggered) {
     appScreen.classList.add("hidden");
-    endScreen.classList.remove("hidden");
-    showNotification("Case Solved! Accessing final transmission...");
-  } else {
-    displayModal("You need to find all critical clues before initiating the final contact. Have you explored all messages and gallery notes, and attempted the call?", "Missing Clues!");
-  }
-}
-
-// Custom Modal for Messages (instead of alert)
-function displayModal(message, title = "Message") {
-  const modalHtml = `
-    <div id="customModal" style="position: fixed; top: 0; left: 0; width: 100%; he
+    endScreen.classList
