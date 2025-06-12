@@ -60,14 +60,18 @@ function triggerShake() {
 
 // --- Clock ---
 function updateClock() {
-  const now = new Date();
-  const hrs = String(now.getHours()).padStart(2, '0');
-  const mins = String(now.getMinutes()).padStart(2, '0');
-  lockTime.textContent = `${hrs}:${mins}`;
+  if (!gameState.unlocked) {
+    lockTime.textContent = `04:20`; // Fixed to 04:20 until unlocked
+  } else {
+    const now = new Date();
+    const hrs = String(now.getHours()).padStart(2, '0');
+    const mins = String(now.getMinutes()).padStart(2, '0');
+    lockTime.textContent = `${hrs}:${mins}`;
+  }
 }
 
 setInterval(updateClock, 1000);
-updateClock();
+updateClock(); // Call initially to set the 04:20 time
 
 // --- Unlock Phone ---
 function unlockPhone() {
@@ -323,3 +327,4 @@ function resetGame() {
 
 // --- Initialize Game ---
 loadGame();
+          
