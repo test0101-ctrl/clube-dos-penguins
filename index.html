@@ -3,185 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lost Signal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Share Tech Mono', monospace;
-      background: #000;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .phone {
-      width: 360px;
-      height: 640px;
-      border: 16px solid #333;
-      border-radius: 36px;
-      background-color: #111;
-      box-shadow: 0 0 20px #00ff88;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .status-bar {
-      height: 24px;
-      background: #000;
-      color: #0f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 10px;
-      font-size: 0.75rem;
-    }
-    #screen {
-      flex: 1;
-      background-color: rgba(0, 0, 0, 0.95);
-      padding: 1rem;
-      overflow-y: auto;
-      border-top: 2px solid #00ff88;
-      border-bottom: 2px solid #00ff88;
-    }
-    #screen p {
-      margin: 0.5rem 0;
-      animation: fadeIn 0.3s ease-in;
-    }
-    #input-area {
-      display: flex;
-      padding: 0.75rem;
-      background: #000;
-      border-top: 2px solid #00ff88;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 0.75rem;
-      background: #111;
-      color: #00ff88;
-      border: 1px solid #00ff88;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    button {
-      margin-left: 0.5rem;
-      padding: 0.75rem 1rem;
-      background: #00ff88;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #00cc70;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <title>Found Phone</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="phone">
-    <div class="status-bar">
-      <span>🔋 89%</span>
-      <span>📶 LTE</span>
-      <span id="clock"></span>
-    </div>
-    <div id="screen"></div>
-    <div id="input-area">
-      <input type="text" id="userInput" placeholder="Type here..." />
-      <button onclick="handleInput()">Send</button>
+  <div class="phone-frame">
+    <div class="screen" id="screen">
+      <div class="lock-screen" id="lockScreen">
+        <p class="time" id="lockTime"></p>
+        <input type="password" id="unlockInput" placeholder="Enter passcode" />
+        <button onclick="unlockPhone()">Unlock</button>
+        <p id="unlockError"></p>
+      </div>
+
+      <div class="home-screen hidden" id="homeScreen">
+        <div class="app-grid">
+          <div class="app" onclick="openApp('messages')">📨<span>Messages</span></div>
+          <div class="app" onclick="openApp('gallery')">🖼️<span>Gallery</span></div>
+          <div class="app" onclick="openApp('notes')">🗒️<span>Notes</span></div>
+          <div class="app" onclick="openApp('audio')">🎧<span>Audio</span></div>
+        </div>
+      </div>
+
+      <div class="app-screen hidden" id="appScreen">
+        <button class="back-btn" onclick="goHome()">← Home</button>
+        <div id="appContent"></div>
+      </div>
     </div>
   </div>
 
-  <script>
-    const screen = document.getElementById("screen");
-    const input = document.getElementById("userInput");
-    let state = "intro";
-
-    function updateClock() {
-      const now = new Date();
-      const hrs = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById("clock").textContent = `${hrs}:${mins}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function print(text) {
-      screen.innerHTML += `<p>> ${text}</p>`;
-      screen.scrollTop = screen.scrollHeight;
-    }
-
-    function handleInput() {
-      const value = input.value.trim();
-      if (!value) return;
-      print(value);
-      processCommand(value.toLowerCase());
-      input.value = "";
-    }
-
-    function processCommand(cmd) {
-      switch (state) {
-        case "intro":
-          print("You’ve recovered a broken phone. A message flashes:");
-          print("'Find me before the static takes over. –N'");
-          state = "first_puzzle";
-          break;
-        case "first_puzzle":
-          if (cmd.includes("gallery")) {
-            print("Opening corrupted gallery...");
-            print("You see an image of coordinates: 51.5074° N, 0.1278° W");
-            state = "coordinate_clue";
-          } else {
-            print("Try accessing something on the phone, like 'gallery' or 'messages'.");
-          }
-          break;
-        case "coordinate_clue":
-          if (cmd.includes("maps") || cmd.includes("coordinates")) {
-            print("Searching the coordinates... it points to London. You hear static.");
-            print("A new folder appears: 'AUDIO LOGS'.");
-            state = "audio_logs";
-          } else {
-            print("Think about what you saw in the gallery.");
-          }
-          break;
-        case "audio_logs":
-          if (cmd.includes("play") || cmd.includes("audio")) {
-            print("Playing audio... 'They’re watching. Signal fading. Trust no app.'");
-            print("Do you trust this device? (yes/no)");
-            state = "trust_choice";
-          } else {
-            print("Try opening the audio logs.");
-          }
-          break;
-        case "trust_choice":
-          if (cmd === "yes") {
-            print("You are now being tracked. A new contact is added: 'The Observer'.");
-            state = "observer";
-          } else if (cmd === "no") {
-            print("Device locks down. 'Wrong choice. Try again.'");
-            state = "audio_logs";
-          } else {
-            print("Please answer with yes or no.");
-          }
-          break;
-        case "observer":
-          print("You’ve entered a deeper layer. This isn’t just a phone—it’s a prison.");
-          print("TO BE CONTINUED...");
-          input.disabled = true;
-          break;
-      }
-    }
-
-    print("Device booting... type anything to begin.");
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
