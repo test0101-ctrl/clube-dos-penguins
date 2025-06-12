@@ -130,7 +130,7 @@ body {
   color: #0f0;
 }
 
-.call-entry, .image-entry {
+.call-entry, .image-entry, .file-entry {
   border: 1px solid #00ff88;
   border-radius: 10px;
   padding: 10px;
@@ -141,4 +141,16 @@ body {
 .image-entry img {
   max-width: 100%;
   border-radius: 6px;
+}
+
+.end-screen {
+  padding: 2rem;
+  text-align: center;
+  background: black;
+  color: #0f0;
+}
+
+.end-screen h2 {
+  margin-top: 0;
+  color: #00ff88;
 }
