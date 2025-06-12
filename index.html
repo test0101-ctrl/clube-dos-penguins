@@ -11,6 +11,7 @@
     <div class="screen" id="screen">
       <div class="lock-screen" id="lockScreen">
         <p class="time" id="lockTime"></p>
+        <p class="hint-text" id="lockHint">Alice's old jokes...</p>
         <input type="password" id="unlockInput" placeholder="Enter passcode" />
         <button onclick="unlockPhone()">Unlock</button>
         <p id="unlockError"></p>
@@ -26,7 +27,8 @@
           <div class="app" onclick="openApp('camera')">📷<span>Camera</span></div>
           <div class="app" onclick="openApp('files')">📁<span>Files</span></div>
           <div class="app" onclick="openApp('settings')">⚙️<span>Settings</span></div>
-          <div class="app" onclick="openApp('browser')">🌐<span>Browser</span></div> </div>
+          <div class="app" onclick="openApp('browser')">🌐<span>Browser</span></div>
+        </div>
       </div>
 
       <div class="app-screen hidden" id="appScreen">
