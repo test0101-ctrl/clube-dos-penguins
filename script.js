@@ -100,8 +100,7 @@ function openApp(appName) {
 
   // Check for game progression triggers
   if (gameState.foundClues >= gameState.totalClues && !gameState.secretMessageRead) {
-    // Reveal a new clue or activate a button after enough clues are found
-    // This could be a new message or a button in the notes app
+    // Reveal a new clue or activate a button in the notes app
     showNotification("Something new appeared in Notes!");
     // Ensure the notes app's special button is visible if enough clues are found
     if (document.getElementById("notesUnlockButton")) {
@@ -137,12 +136,12 @@ function renderApp(appName) {
       content = `
         <div class="image-entry">
           <p><strong>📸 Clue #1:</strong> File name: X-19B4.CAM - shows blurred screen with folder: <em>SECRET/ROWAN</em></p>
-          <img src="assets/images/blurred_folder.jpg" alt="Blurred folder image" />
+          <img src="https://placehold.co/300x200/222222/00ff88?text=SECRET/ROWAN+(BLURRED)" alt="Blurred folder image" />
           <p>📌 Hidden in metadata: date "04/19", coord: 45.0° N, 122.0° W</p>
         </div>
         <div class="image-entry">
           <p><strong>📸 Clue #2:</strong> Corrupted Image - looks like static but a faint shape is visible.</p>
-          <img src="assets/images/corrupted_static.png" alt="Corrupted static image" />
+          <img src="https://placehold.co/300x200/000000/cccccc?text=STATIC+712" alt="Corrupted static image" />
           <p><em>(Examine closely: a sequence of numbers is barely visible: 712)</em></p>
         </div>
       `;
@@ -151,15 +150,14 @@ function renderApp(appName) {
       content = `
         <div class="file-entry">
           <p><strong>📁 SECRET/ROWAN/missing.txt</strong></p>
-          <p>"Operation Echo failed. I suspect I'm being watched. The phone holds evidence, but it’s encrypted in layers."</p>
-          <button onclick="decryptFile('missing.txt')" ${gameState.secretMessageRead ? 'disabled' : ''}>Decrypt</button>
+          ${gameState.secretMessageRead ? '<p>"My contact, Alice, knows the full story. Her number is in my calls. The final piece is in the browser history, under a search for "Project Simulacra anomaly". The password for that entry starts with \'alpha\'."</p>' : '<p>"Operation Echo failed. I suspect I\'m being watched. The phone holds evidence, but it’s encrypted in layers."</p><button onclick="decryptFile(\'missing.txt\')">Decrypt</button>'}
         </div>
         <div class="file-entry">
           <p><strong>📁 SYSTEM/log_0420.sys</strong></p>
           <p>Audio pattern anomaly. Warning: unauthorized file tampering detected.</p>
         </div>
         <div class="file-entry">
-          <p><strong>📁 Documents/Research/anomaly_report.pdf</strong></p>
+          <p><strong>📁 Documents/Research/subnetwork_712_report.pdf</strong></p>
           <p>A brief report on strange network activities. Keywords: "Project Simulacra", "Subnetwork 712".</p>
         </div>
       `;
@@ -176,9 +174,10 @@ function renderApp(appName) {
       content = `
         <p><em>Encrypted voice log #4</em></p>
         <audio controls>
-          <source src="assets/audio/log4_decoded.mp3" type="audio/mpeg">
+          <!-- TODO: Place your audio file here. For example: <source src="assets/audio/log4_decoded.mp3" type="audio/mpeg"> -->
+          Your browser does not support the audio element.
         </audio>
-        <p>"...I repeat: do NOT trust the agency. Project Simulacra is alive. They are tracking devices with subnetwork '712'. The override code is found in the main browser history. It's an old agency password, begins with 'alpha'..."</p>
+        <p><strong>Audio Log Text:</strong> "...I repeat: do NOT trust the agency. Project Simulacra is alive. They are tracking devices with subnetwork '712'. The override code is found in the main browser history. It's an old agency password, begins with 'alpha'..."</p>
         <p><em>(Audio ends abruptly with static)</em></p>
       `;
       break;
@@ -194,24 +193,8 @@ function renderApp(appName) {
     case "camera":
       content = `
         <p><strong>Camera Glitch Detected</strong></p>
-        <img src="assets/images/camera_glitch_simulacra.gif" alt="Camera Glitch showing SIMULACRA" />
+        <img src="https://placehold.co/300x200/FF0000/FFFFFF?text=GLITCH+SIMULACRA+%0AALPHA_712" alt="Camera Glitch showing SIMULACRA and Alpha_712" />
         <p>Glitched overlay reveals word: "SIMULACRA" in lower right corner. A hidden message flickers: "Alpha_712"</p>
-      `;
-      break;
-    case "files":
-      content = `
-        <div class="file-entry">
-          <p><strong>📁 SECRET/ROWAN/missing.txt</strong></p>
-          ${gameState.secretMessageRead ? '<p>"My contact, Alice, knows the full story. Her number is in my calls. The final piece is in the browser history, under a search for "Project Simulacra anomaly". The password for that entry starts with 'alpha'."</p>' : '<p>"Operation Echo failed. I suspect I'm being watched. The phone holds evidence, but it’s encrypted in layers."</p><button onclick="decryptFile(\'missing.txt\')">Decrypt</button>'}
-        </div>
-        <div class="file-entry">
-          <p><strong>📁 SYSTEM/log_0420.sys</strong></p>
-          <p>Audio pattern anomaly. Warning: unauthorized file tampering detected.</p>
-        </div>
-        <div class="file-entry">
-          <p><strong>📁 Documents/Research/subnetwork_712_report.pdf</strong></p>
-          <p>A brief report on strange network activities. Keywords: "Project Simulacra", "Subnetwork 712".</p>
-        </div>
       `;
       break;
     case "settings":
@@ -249,7 +232,7 @@ function renderApp(appName) {
 function decryptFile(fileName) {
   if (fileName === "missing.txt") {
     // This could be unlocked by finding a specific clue, like the "712" from the gallery
-    if (gameState.viewedApps.includes("gallery") && gameState.viewedApps.includes("audio")) {
+    if (gameState.viewedApps.includes("gallery") && gameState.viewedApps.includes("audio") && gameState.viewedApps.includes("camera")) {
       gameState.secretMessageRead = true;
       gameState.foundClues++; // Count as another clue
       saveGame();
@@ -311,10 +294,25 @@ function finalStep() {
     endScreen.classList.remove("hidden");
     showNotification("Case Solved! Accessing final transmission...");
   } else if (elapsed < 600) {
-    alert(`You need to investigate more clues and play for at least ${Math.ceil((600 - elapsed) / 60)} more minutes.`);
+    // Using a modal instead of alert for better UX
+    displayModal(`You need to investigate more clues and play for at least ${Math.ceil((600 - elapsed) / 60)} more minutes.`, "Hold On!");
   } else {
-    alert("You need to find all critical clues before initiating the final contact.");
+    displayModal("You need to find all critical clues before initiating the final contact.", "Missing Clues!");
   }
+}
+
+// Custom Modal for Messages (instead of alert)
+function displayModal(message, title = "Message") {
+  const modalHtml = `
+    <div id="customModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+      <div style="background: #222; padding: 20px; border-radius: 10px; border: 2px solid #00ff88; color: white; text-align: center; width: 80%; max-width: 400px;">
+        <h3 style="color: #00ff88; margin-top: 0;">${title}</h3>
+        <p>${message}</p>
+        <button onclick="document.getElementById('customModal').remove()" style="background-color: #00ff88; border: none; padding: 10px 20px; font-size: 1rem; color: #000; cursor: pointer; border-radius: 8px; margin-top: 15px;">OK</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
 
