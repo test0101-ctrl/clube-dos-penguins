@@ -1,3 +1,5 @@
+// script.js (expanded logic for cinematic effects, save system, new ending trigger)
+
 const lockScreen = document.getElementById("lockScreen");
 const homeScreen = document.getElementById("homeScreen");
 const appScreen = document.getElementById("appScreen");
@@ -8,7 +10,31 @@ const lockTime = document.getElementById("lockTime");
 const endScreen = document.getElementById("endScreen");
 
 const PASSCODE = "0420";
-let foundOwner = false;
+const SAVE_KEY = "phoneMysterySave";
+
+let gameState = {
+  unlocked: false,
+  viewedApps: [],
+  finalTrigger: false,
+  foundClues: 0,
+  totalClues: 6,
+  gameStartTime: Date.now()
+};
+
+function saveGame() {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+}
+
+function loadGame() {
+  const save = localStorage.getItem(SAVE_KEY);
+  if (save) {
+    gameState = JSON.parse(save);
+    if (gameState.unlocked) {
+      lockScreen.classList.add("hidden");
+      homeScreen.classList.remove("hidden");
+    }
+  }
+}
 
 function updateClock() {
   const now = new Date();
@@ -23,6 +49,8 @@ updateClock();
 function unlockPhone() {
   const code = unlockInput.value;
   if (code === PASSCODE) {
+    gameState.unlocked = true;
+    saveGame();
     lockScreen.classList.add("hidden");
     homeScreen.classList.remove("hidden");
   } else {
@@ -31,10 +59,23 @@ function unlockPhone() {
 }
 
 function openApp(appName) {
+  if (!gameState.viewedApps.includes(appName)) {
+    gameState.viewedApps.push(appName);
+    gameState.foundClues++;
+    saveGame();
+  }
+
+  if (gameState.foundClues >= gameState.totalClues) {
+    document.getElementById("notesUnlockButton")?.classList.remove("hidden");
+  }
+
   homeScreen.classList.add("hidden");
   appScreen.classList.remove("hidden");
-  let content = "";
+  renderApp(appName);
+}
 
+function renderApp(appName) {
+  let content = "";
   switch (appName) {
     case "messages":
       content = `
@@ -47,7 +88,7 @@ function openApp(appName) {
       content = `
         <div class="image-entry">
           <p><strong>📸 Clue #1:</strong> File name: X-19B4.CAM - shows blurred screen with folder: <em>SECRET/ROWAN</em></p>
-          <img src="https://via.placeholder.com/150/111111/00ff88?text=Clue1" alt="Clue 1" />
+          <img src="assets/images/clue1.jpg" alt="Clue 1" />
         </div>
         <div class="image-entry">
           <p>📌 Hidden in metadata: date "04/19", coord: 45.0° N, 122.0° W</p>
@@ -68,16 +109,16 @@ function openApp(appName) {
       break;
     case "notes":
       content = `
-        <p><strong>🔑 Note 1:</strong> "Files opened. Final step: call your last contact... but only at 04:20."</p>
+        <p><strong>🔑 Note 1:</strong> "Files opened. Final step: call your last contact... or override timer if all clues found."</p>
         <p><strong>🔑 Note 2:</strong> "The camera shows what's hidden. Check when it glitches."</p>
-        <button onclick="finalStep()">Make final call</button>
+        <button id="notesUnlockButton" class="hidden" onclick="finalStep()">Initiate Final Contact</button>
       `;
       break;
     case "audio":
       content = `
         <p><em>Encrypted voice log #4</em></p>
         <audio controls>
-          <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+          <source src="assets/audio/log4.mp3" type="audio/mpeg">
         </audio>
         <p>"...I repeat: do NOT trust the agency. Project Simulacra is alive."</p>
       `;
@@ -102,28 +143,35 @@ function openApp(appName) {
         <p>✔️ Diagnostics: Phone integrity low</p>
         <p>✔️ Owner ID: ROWAN.LAST.SIGNAL</p>
         <p>✔️ Final coordinate ping: 04/20 04:20</p>
+        <button onclick="resetGame()">🔁 Reset Game</button>
       `;
       break;
     default:
       content = "<p>App not found.</p>";
   }
-
   appContent.innerHTML = content;
 }
 
 function finalStep() {
-  const now = new Date();
-  if (now.getHours() === 4 && now.getMinutes() === 20) {
+  const elapsed = (Date.now() - gameState.gameStartTime) / 1000;
+
+  if (elapsed > 600 || gameState.foundClues >= gameState.totalClues) {
     foundOwner = true;
     appScreen.classList.add("hidden");
     endScreen.classList.remove("hidden");
   } else {
-    alert("The call only works at 04:20. Try again later.");
+    alert("You need to investigate more clues or wait at least 10 minutes.");
   }
 }
 
 function goHome() {
   appScreen.classList.add("hidden");
   homeScreen.classList.remove("hidden");
-        }
-        
+}
+
+function resetGame() {
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
+
+loadGame();
