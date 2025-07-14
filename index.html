@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Links para a nova fonte fofinha -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    
     <!-- Muda o título para o nome dela! -->
-    <title>Club Penguin da [Nome da Namorada]</title>
+    <title>Club Penguin da [Nome da Namorada] ❤️</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,24 +19,27 @@
             <!-- Pinguim e Puffle serão adicionados aqui via JavaScript -->
         </div>
 
-        <!-- Interface do Utilizador -->
+        <!-- Interface do Utilizador (UI) mais fofinha -->
         <div id="ui-bar">
             <div class="ui-button" id="wave-button" title="Acenar (W)">👋</div>
+            <div class="ui-button" id="heart-button" title="Mandar Coração (H)">❤️</div>
             <div class="ui-button" id="snowball-button" title="Atirar Bola de Neve (T)">❄️</div>
             <div class="ui-button" id="chat-button" title="Conversar (C)">💬</div>
             <div id="color-picker">
-                <div class="color-swatch" style="--penguin-color: #2c3e50;" data-color="#2c3e50"></div>
-                <div class="color-swatch" style="--penguin-color: #e74c3c;" data-color="#e74c3c"></div>
-                <div class="color-swatch" style="--penguin-color: #9b59b6;" data-color="#9b59b6"></div>
-                <div class="color-swatch" style="--penguin-color: #2ecc71;" data-color="#2ecc71"></div>
-                <div class="color-swatch" style="--penguin-color: #f1c40f;" data-color="#f1c40f"></div>
+                <!-- As cores foram atualizadas no CSS para um visual pastel -->
+                <div class="color-swatch" style="--penguin-color: #6a8dcd;" data-color="#6a8dcd"></div>
+                <div class="color-swatch" style="--penguin-color: #ff85a2;" data-color="#ff85a2"></div>
+                <div class="color-swatch" style="--penguin-color: #b19cd9;" data-color="#b19cd9"></div>
+                <div class="color-swatch" style="--penguin-color: #77dd77;" data-color="#77dd77"></div>
+                <div class="color-swatch" style="--penguin-color: #fdfd96;" data-color="#fdfd96"></div>
             </div>
         </div>
     </div>
 
     <div id="loading-screen">
-        <h2>A carregar a ilha...</h2>
-        <p>Feito com amor para a pinguim mais especial de todas ❤️</p>
+        <div class="loading-heart">❤️</div>
+        <h2>A preparar a ilha para ti...</h2>
+        <p>Feito com amor para a pinguim mais especial de todas!</p>
     </div>
 
     <script src="script.js"></script>
