@@ -1,41 +1,76 @@
+:root {
+    --penguin-body-color: #2c3e50;
+}
+
 body {
     margin: 0;
-    font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Font fofinha */
-    background-color: #87ceeb; /* Azul céu */
+    font-family: Arial, sans-serif;
+    background-color: #1a1a2e;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    flex-direction: column;
     overflow: hidden;
+}
+
+#game-container {
+    width: 900px;
+    height: 650px;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
 }
 
 #game-world {
-    width: 800px;
+    width: 100%;
     height: 600px;
-    background-color: #f0f8ff; /* Neve branquinha */
-    border: 10px solid #ffffff;
-    border-radius: 20px;
+    background-size: cover;
+    background-position: center;
     position: relative;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     overflow: hidden;
+    cursor: url('https://cur.cursors-4u.net/games/gam-14/gam-1340.cur'), auto;
 }
 
-/* O nosso Pinguim herói */
-#player-penguin {
+/* --- ESTILOS DO JOGADOR (PINGUIM) --- */
+.player {
     width: 60px;
     height: 75px;
-    background-color: #2c3e50; /* Cor de pinguim */
-    border-radius: 50% 50% 40% 40%;
     position: absolute;
-    top: 250px;
-    left: 350px;
-    transition: top 0.1s linear, left 0.1s linear; /* Movimento suave */
-    z-index: 10;
+    z-index: 100;
+    transition: left 0.1s linear, top 0.1s linear;
 }
 
-/* A barriga branca do pinguim */
-#player-penguin::before {
+.player .penguin-body {
+    width: 100%;
+    height: 100%;
+    background-color: var(--penguin-body-color);
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.player.facing-left {
+    transform: scaleX(-1);
+}
+
+/* Waddle Animation */
+.player.is-walking {
+    animation: waddle 0.5s infinite;
+}
+@keyframes waddle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(5deg); }
+}
+.player.is-walking.facing-left {
+    animation: waddle-left 0.5s infinite;
+}
+@keyframes waddle-left {
+    0%, 100% { transform: scaleX(-1) rotate(0deg); }
+    50% { transform: scaleX(-1) rotate(-5deg); }
+}
+
+
+.penguin-body::before { /* Barriga */
     content: '';
     position: absolute;
     width: 45px;
@@ -45,8 +80,7 @@ body {
     top: 20px;
     left: 7.5px;
 }
-
-.eye {
+.penguin-body .eye {
     width: 10px;
     height: 12px;
     background-color: white;
@@ -55,8 +89,7 @@ body {
     top: 15px;
     z-index: 1;
 }
-
-.eye::after { /* Pupila */
+.penguin-body .eye::after { /* Pupila */
     content: '';
     position: absolute;
     width: 5px;
@@ -66,14 +99,13 @@ body {
     top: 4px;
     left: 2.5px;
 }
+.penguin-body .eye.left { left: 15px; }
+.penguin-body .eye.right { right: 15px; }
 
-.eye.left { left: 15px; }
-.eye.right { right: 15px; }
-
-.beak {
+.penguin-body .beak {
     width: 15px;
     height: 10px;
-    background-color: #f39c12; /* Laranja */
+    background-color: #f39c12;
     border-radius: 2px 2px 50% 50%;
     position: absolute;
     top: 30px;
@@ -81,42 +113,86 @@ body {
     z-index: 1;
 }
 
-/* O Puffle fofinho */
+/* Wave Animation */
+.player .arm {
+    width: 25px;
+    height: 10px;
+    background-color: var(--penguin-body-color);
+    border-radius: 5px;
+    position: absolute;
+    top: 40px;
+    left: -20px;
+    transform-origin: right center;
+    transition: background-color 0.3s ease;
+}
+.player.is-waving .arm {
+    animation: wave-anim 0.8s ease-in-out;
+}
+@keyframes wave-anim {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-120deg); }
+    50% { transform: rotate(-80deg); }
+    75% { transform: rotate(-120deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Chat Bubble */
+.chat-bubble {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    color: black;
+    padding: 10px 15px;
+    border-radius: 15px;
+    border: 3px solid #000;
+    font-size: 14px;
+    max-width: 150px;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 200;
+}
+.chat-bubble::after { /* Cauda do balão */
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px;
+    border-style: solid;
+    border-color: #000 transparent transparent transparent;
+}
+.chat-bubble.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* Puffle */
 #puffle {
     width: 40px;
     height: 35px;
-    background-color: #e74c3c; /* Puffle vermelho */
+    background-color: #d35400; /* Puffle laranja */
     border-radius: 50%;
     position: absolute;
-    top: 300px;
-    left: 300px;
-    z-index: 5;
-    transition: top 0.3s ease-out, left 0.3s ease-out; /* Segue mais devagar */
+    z-index: 50;
+    transition: top 0.3s ease-out, left 0.3s ease-out;
 }
-
-.puffle-hair {
-    width: 15px;
-    height: 15px;
-    background-color: #e74c3c;
-    border-radius: 50%;
-    position: absolute;
-    top: -8px;
-    left: 12.5px;
-    box-shadow: 0 0 0 3px #f0f8ff, /* Contorno para separar */
-                -6px 2px 0 0 #e74c3c,
-                -10px -2px 0 0 #e74c3c;
-}
-.puffle-eye {
+#puffle .puffle-eye {
     width: 8px;
     height: 10px;
     background-color: white;
     border-radius: 50%;
     position: absolute;
     top: 10px;
+    border: 1px solid #555;
 }
-.puffle-eye.left { left: 8px; }
-.puffle-eye.right { right: 8px; }
-.puffle-eye::after { /* Pupila */
+#puffle .puffle-eye.left { left: 8px; }
+#puffle .puffle-eye.right { right: 8px; }
+#puffle .puffle-eye::after { /* Pupila */
     content: '';
     position: absolute;
     width: 4px;
@@ -124,55 +200,97 @@ body {
     background-color: black;
     border-radius: 50%;
     top: 3px;
-    left: 2px;
+    left: 1.5px;
 }
 
-/* Cenário */
-.building {
+/* Bola de Neve */
+.snowball {
+    width: 25px;
+    height: 25px;
+    background-image: url('https://i.imgur.com/u3Jz827.png'); /* Sprite de bola de neve */
+    background-size: contain;
     position: absolute;
-    width: 150px;
-    height: 180px;
-    background-color: #3498db;
-    border-radius: 10px 10px 0 0;
-    border: 5px solid #2980b9;
-    bottom: 0;
+    z-index: 500;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+/* Portais (zonas de transição) */
+.portal {
+    position: absolute;
+    /* background-color: rgba(0, 255, 0, 0.3); */ /* Descomentar para ver as áreas */
     cursor: pointer;
-    transition: transform 0.2s ease;
 }
-.building:hover {
-    transform: scale(1.05);
-}
-.building span {
-    background-color: #ecf0f1;
-    padding: 5px 15px;
-    border-radius: 5px;
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #2c3e50;
-    font-weight: bold;
-}
-#ice-shop {
-    left: 50px;
-    background-color: #1abc9c;
-    border-color: #16a085;
+.portal:hover {
+    box-shadow: 0 0 20px 5px rgba(255, 255, 0, 0.7);
+    border-radius: 10px;
 }
 
-#instructions {
-    margin-top: 20px;
+
+/* --- UI (INTERFACE) --- */
+#ui-bar {
+    width: 100%;
+    height: 50px;
+    background-color: #3b5998;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    border-top: 3px solid #8c9eff;
+}
+.ui-button {
+    width: 40px;
+    height: 40px;
+    background-color: #8c9eff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.ui-button:hover {
+    background-color: #c3fdff;
+    transform: scale(1.1);
+}
+
+#color-picker {
+    display: flex;
+    gap: 5px;
+    border-left: 2px solid #8c9eff;
+    padding-left: 15px;
+}
+.color-swatch {
+    width: 30px;
+    height: 30px;
+    background-color: var(--penguin-color);
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.color-swatch:hover {
+    transform: scale(1.15);
+}
+
+/* Ecrã de Carregamento */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a2e;
     color: white;
-    font-size: 1.2em;
-    text-shadow: 2px 2px 4px #333;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+    font-size: 2em;
+    transition: opacity 0.5s ease-out;
 }
-
-#special-message {
-    margin-top: 10px;
-    font-size: 0.8em;
-}
-
-/* O pinguim vira-se para a esquerda/direita! */
-#player-penguin.facing-left {
-    transform: scaleX(-1);
+#loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
