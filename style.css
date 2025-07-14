@@ -30,11 +30,15 @@ body {
 #game-world {
     width: 100%;
     height: 600px;
-    background-size: cover;
-    background-position: center;
+    /* background-size: cover; */ /* Podes apagar ou comentar estas linhas */
+    /* background-position: center; */
+    /* background-image: url('...'); foi movido para o ficheiro JS */
     position: relative;
     overflow: hidden;
     cursor: pointer; 
+    
+    /* ADICIONA ISTO PARA UM FUNDO DE GRADIENTE FOFINHO: */
+    background: linear-gradient(180deg, #a2d2ff 0%, #fec8d8 100%); 
 }
 
 /* --- ESTILOS DO JOGADOR (PINGUIM) --- */
