@@ -1,49 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Found Phone</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Fofo</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="phone-frame">
-    <div class="screen" id="screen">
-      <div class="lock-screen" id="lockScreen">
-        <p class="time" id="lockTime"></p>
-        <p class="hint-text" id="lockHint">Alice's old jokes...</p>
-        <input type="password" id="unlockInput" placeholder="Enter passcode" />
-        <button onclick="unlockPhone()">Unlock</button>
-        <p id="unlockError"></p>
-      </div>
 
-      <div class="home-screen hidden" id="homeScreen">
-        <div class="app-grid">
-          <div class="app" onclick="openApp('messages')">📨<span>Messages</span></div>
-          <div class="app" onclick="openApp('gallery')">🖼️<span>Gallery</span></div>
-          <div class="app" onclick="openApp('notes')">🗒️<span>Notes</span></div>
-          <div class="app" onclick="openApp('audio')">🎧<span>Audio</span></div>
-          <div class="app" onclick="openApp('calls')">📞<span>Calls</span></div>
-          <div class="app" onclick="openApp('camera')">📷<span>Camera</span></div>
-          <div class="app" onclick="openApp('files')">📁<span>Files</span></div>
-          <div class="app" onclick="openApp('settings')">⚙️<span>Settings</span></div>
-          <div class="app" onclick="openApp('browser')">🌐<span>Browser</span></div>
+    <div id="game-world">
+        <!-- O nosso pinguim jogador -->
+        <div id="player-penguin">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="beak"></div>
         </div>
-      </div>
 
-      <div class="app-screen hidden" id="appScreen">
-        <button class="back-btn" onclick="goHome()">← Home</button>
-        <div id="appContent"></div>
-      </div>
+        <!-- Um Puffle amigo que nos segue -->
+        <div id="puffle">
+            <div class="puffle-hair"></div>
+            <div class="puffle-eye left"></div>
+            <div class="puffle-eye right"></div>
+        </div>
 
-      <div class="end-screen hidden" id="endScreen">
-        <h2>Case Solved</h2>
-        <p>You uncovered the truth. The phone belonged to Agent Rowan, who disappeared while investigating a secret transmission network hidden in ordinary phones...</p>
-        <p>Thanks for playing!</p>
-      </div>
+        <!-- Elementos do cenário -->
+        <div id="ice-shop" class="building">
+            <span>Loja</span>
+        </div>
+
+        <div id="tree"></div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <div id="instructions">
+        Usa as setas do teclado para mover o pinguim!
+        <p id="special-message">Feito com carinho para a melhor namorada do mundo ❤️</p>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
