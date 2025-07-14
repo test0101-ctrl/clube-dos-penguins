@@ -30,14 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const rooms = {
         town: {
             name: "Town Center",
-            background: "url('https://i.imgur.com/gO0kBNQ.png')",
+            // ALTERAÇÃO AQUI: Usar a imagem local
+            background: "url('images/town_center.png')",
             portals: [
                 { x: 750, y: 350, width: 150, height: 250, to: 'plaza' }
             ]
         },
         plaza: {
             name: "Plaza",
-            background: "url('https://i.imgur.com/T0DB1t2.png')",
+            // ALTERAÇÃO AQUI: Usar a imagem local
+            background: "url('images/plaza.png')",
             portals: [
                 { x: 0, y: 300, width: 100, height: 300, to: 'town' }
             ]
