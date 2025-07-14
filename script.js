@@ -7,42 +7,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameState = {
         player: {
             element: null,
-            x: 400,
-            y: 400,
-            targetX: 400,
-            targetY: 400,
-            isWalking: false,
-            isWaving: false,
+            x: 400, y: 400,
+            targetX: 400, targetY: 400,
+            isWalking: false, isWaving: false,
         },
         puffle: {
-            element: null,
-            x: 350,
-            y: 400,
+            element: null, x: 350, y: 400,
         },
         currentRoom: 'town',
     };
 
     // --- CONFIGURAÇÕES DO JOGO ---
     const PLAYER_SPEED = 3;
-    const PUFFLE_FOLLOW_DISTANCE = 80;
+    const PUFFLE_FOLLOW_DISTANCE = 90; // Aumentar um pouco a distância
 
     // --- DEFINIÇÃO DOS CENÁRIOS ---
     const rooms = {
         town: {
-            name: "Town Center",
-            // ALTERAÇÃO AQUI: Usar a imagem local
-            background: "url('images/town_center.png')",
-            portals: [
-                { x: 750, y: 350, width: 150, height: 250, to: 'plaza' }
-            ]
+            name: "Town Center", background: "url('images/town_center.png')",
+            portals: [{ x: 750, y: 350, width: 150, height: 250, to: 'plaza' }]
         },
         plaza: {
-            name: "Plaza",
-            // ALTERAÇÃO AQUI: Usar a imagem local
-            background: "url('images/plaza.png')",
-            portals: [
-                { x: 0, y: 300, width: 100, height: 300, to: 'town' }
-            ]
+            name: "Plaza", background: "url('images/plaza.png')",
+            portals: [{ x: 0, y: 300, width: 100, height: 300, to: 'town' }]
         }
     };
 
@@ -51,10 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function createPlayer() {
         const player = document.createElement('div');
         player.className = 'player';
+        // Adiciona as bochechas coradas!
         player.innerHTML = `
             <div class="penguin-body">
                 <div class="eye left"></div>
                 <div class="eye right"></div>
+                <div class="blush left"></div>
+                <div class="blush right"></div>
                 <div class="beak"></div>
                 <div class="arm"></div>
                 <div class="chat-bubble"></div>
@@ -68,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createPuffle() {
         const puffle = document.createElement('div');
         puffle.id = 'puffle';
+        // HTML do puffle simplificado, o estilo faz a magia
         puffle.innerHTML = `
             <div class="puffle-eye left"></div>
             <div class="puffle-eye right"></div>
@@ -79,17 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function changeRoom(roomId) {
         if (!rooms[roomId]) return;
-
         gameState.currentRoom = roomId;
         const room = rooms[roomId];
-        
-        // Limpa portais antigos
         document.querySelectorAll('.portal').forEach(p => p.remove());
-
-        // Carrega novo fundo
         gameWorld.style.backgroundImage = room.background;
-
-        // Cria novos portais
         room.portals.forEach(p => {
             const portalEl = document.createElement('div');
             portalEl.className = 'portal';
@@ -98,20 +82,13 @@ document.addEventListener('DOMContentLoaded', () => {
             portalEl.style.width = `${p.width}px`;
             portalEl.style.height = `${p.height}px`;
             portalEl.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que o clique no portal mova o pinguim
-                // Posiciona o pinguim no "outro lado" do novo cenário
-                if (p.to === 'plaza') {
-                    gameState.player.x = 50;
-                    gameState.player.y = 450;
-                } else if (p.to === 'town') {
-                    gameState.player.x = 750;
-                    gameState.player.y = 450;
-                }
+                e.stopPropagation();
+                if (p.to === 'plaza') { gameState.player.x = 50; gameState.player.y = 450; } 
+                else if (p.to === 'town') { gameState.player.x = 750; gameState.player.y = 450; }
                 changeRoom(p.to);
             });
             gameWorld.appendChild(portalEl);
         });
-        
         updatePlayerElement();
     }
 
@@ -131,8 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function gameLoop() {
         const { player, puffle } = gameState;
-
-        // Movimento do Jogador
         const dx = player.targetX - player.x;
         const dy = player.targetY - player.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -144,29 +119,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             player.x += (dx / distance) * PLAYER_SPEED;
             player.y += (dy / distance) * PLAYER_SPEED;
-
-            // Virar o pinguim
             if (dx < 0) player.element.classList.add('facing-left');
             else player.element.classList.remove('facing-left');
-            
         } else if (player.isWalking) {
             player.isWalking = false;
             player.element.classList.remove('is-walking');
         }
-        
         updatePlayerElement();
 
-        // Movimento do Puffle
         const puffleDx = player.x - puffle.x;
-        const puffleDy = player.y - puffle.y;
-        const puffleDist = Math.sqrt(puffleDx*puffleDx + puffleDy*puffleDy);
+        const puffleDy = (player.y - 10) - puffle.y; // Puffle segue um pouco atrás e ao lado
+        const puffleDist = Math.sqrt(puffleDx * puffleDx + puffleDy * puffleDy);
         
         if (puffleDist > PUFFLE_FOLLOW_DISTANCE) {
             puffle.x += puffleDx * 0.05;
             puffle.y += puffleDy * 0.05;
             updatePuffleElement();
         }
-
         requestAnimationFrame(gameLoop);
     }
     
@@ -174,23 +143,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleWave() {
         if (gameState.player.isWaving) return;
-        
         gameState.player.isWaving = true;
         gameState.player.element.classList.add('is-waving');
-        
         setTimeout(() => {
             gameState.player.isWaving = false;
             gameState.player.element.classList.remove('is-waving');
-        }, 800); // Duração da animação CSS
+        }, 800);
+    }
+
+    // ✨ NOVA FUNÇÃO: Mandar Coração ✨
+    function handleHeart() {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        heart.textContent = '❤️';
+        
+        const playerRect = gameState.player.element.getBoundingClientRect();
+        const worldRect = gameWorld.getBoundingClientRect();
+
+        heart.style.left = `${playerRect.left - worldRect.left + 15}px`;
+        heart.style.top = `${playerRect.top - worldRect.top}px`;
+        
+        gameWorld.appendChild(heart);
+
+        setTimeout(() => {
+            heart.remove();
+        }, 1500); // Remove o coração depois da animação
     }
 
     function handleThrowSnowball(e) {
         const playerRect = gameState.player.element.getBoundingClientRect();
         const worldRect = gameWorld.getBoundingClientRect();
-
         const startX = playerRect.left + (playerRect.width / 2) - worldRect.left;
         const startY = playerRect.top + (playerRect.height / 2) - worldRect.top;
-        
         const endX = e.clientX - worldRect.left;
         const endY = e.clientY - worldRect.top;
         
@@ -198,59 +182,66 @@ document.addEventListener('DOMContentLoaded', () => {
         snowball.className = 'snowball';
         snowball.style.left = `${startX}px`;
         snowball.style.top = `${startY}px`;
-        snowball.style.transform = 'scale(0.5)';
         gameWorld.appendChild(snowball);
         
-        // Forçar o browser a aplicar o estado inicial antes de animar
         requestAnimationFrame(() => {
-            snowball.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(1)`;
+            snowball.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(1.2)`;
             snowball.style.opacity = '0';
         });
 
-        setTimeout(() => {
-            snowball.remove();
-        }, 500); // Duração da transição CSS
+        setTimeout(() => { snowball.remove(); }, 500);
     }
     
     function handleChat() {
-        const message = prompt("O que queres dizer?");
+        const message = prompt("O que queres dizer, meu amor?"); // Mensagem mais fofa
         if (!message) return;
-
         const chatBubble = gameState.player.element.querySelector('.chat-bubble');
         chatBubble.textContent = message;
         chatBubble.classList.add('visible');
-        
-        setTimeout(() => {
-            chatBubble.classList.remove('visible');
-        }, 4000);
+        setTimeout(() => { chatBubble.classList.remove('visible'); }, 4000);
     }
 
     function handleChangeColor(color) {
         document.documentElement.style.setProperty('--penguin-body-color', color);
     }
 
+    // ✨ NOVA FUNÇÃO: Efeito de clique ✨
+    function createClickEffect(x, y) {
+        const effect = document.createElement('div');
+        effect.className = 'click-effect';
+        effect.textContent = '✨';
+        effect.style.left = `${x - 12}px`; // Ajustar para o centro da estrela
+        effect.style.top = `${y - 12}px`;
+        gameWorld.appendChild(effect);
+        setTimeout(() => effect.remove(), 500);
+    }
+
 
     // --- INICIALIZAÇÃO ---
     function init() {
-        // Esconde o ecrã de carregamento
         setTimeout(() => {
             loadingScreen.classList.add('hidden');
-        }, 1500);
+        }, 2500); // Aumentar um pouco o tempo para ela apreciar a mensagem
 
         createPlayer();
         createPuffle();
         changeRoom(gameState.currentRoom);
         
-        // Event Listeners
         gameWorld.addEventListener('click', (e) => {
             const worldRect = gameWorld.getBoundingClientRect();
-            gameState.player.targetX = e.clientX - worldRect.left - (gameState.player.element.offsetWidth / 2);
-            gameState.player.targetY = e.clientY - worldRect.top - (gameState.player.element.offsetHeight / 2);
+            const clickX = e.clientX - worldRect.left;
+            const clickY = e.clientY - worldRect.top;
+            
+            gameState.player.targetX = clickX - (gameState.player.element.offsetWidth / 2);
+            gameState.player.targetY = clickY - (gameState.player.element.offsetHeight / 2);
+
+            createClickEffect(clickX, clickY); // Adiciona o efeito no local do clique
         });
 
         // UI Buttons
         document.getElementById('wave-button').addEventListener('click', handleWave);
-        document.getElementById('snowball-button').addEventListener('click', (e) => {
+        document.getElementById('heart-button').addEventListener('click', handleHeart); // Novo botão
+        document.getElementById('snowball-button').addEventListener('click', () => {
              alert("Agora clica em algum lugar no mundo para atirar a bola de neve!");
              gameWorld.addEventListener('click', handleThrowSnowball, { once: true });
         });
@@ -259,11 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Atalhos de teclado
         document.addEventListener('keydown', (e) => {
             if (e.key.toLowerCase() === 'w') handleWave();
+            if (e.key.toLowerCase() === 'h') handleHeart(); // Novo atalho
             if (e.key.toLowerCase() === 'c') handleChat();
             if (e.key.toLowerCase() === 't') document.getElementById('snowball-button').click();
         });
         
-        // Color Picker
         document.querySelectorAll('.color-swatch').forEach(swatch => {
             swatch.addEventListener('click', () => {
                 handleChangeColor(swatch.dataset.color);
