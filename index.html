@@ -3,37 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Club Fofo</title>
+    <!-- Muda o título para o nome dela! -->
+    <title>Club Penguin da [Nome da Namorada]</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="game-world">
-        <!-- O nosso pinguim jogador -->
-        <div id="player-penguin">
-            <div class="eye left"></div>
-            <div class="eye right"></div>
-            <div class="beak"></div>
+    <div id="game-container">
+        <div id="game-world">
+            <!-- Pinguim e Puffle serão adicionados aqui via JavaScript -->
         </div>
 
-        <!-- Um Puffle amigo que nos segue -->
-        <div id="puffle">
-            <div class="puffle-hair"></div>
-            <div class="puffle-eye left"></div>
-            <div class="puffle-eye right"></div>
+        <!-- Interface do Utilizador -->
+        <div id="ui-bar">
+            <div class="ui-button" id="wave-button" title="Acenar (W)">👋</div>
+            <div class="ui-button" id="snowball-button" title="Atirar Bola de Neve (T)">❄️</div>
+            <div class="ui-button" id="chat-button" title="Conversar (C)">💬</div>
+            <div id="color-picker">
+                <div class="color-swatch" style="--penguin-color: #2c3e50;" data-color="#2c3e50"></div>
+                <div class="color-swatch" style="--penguin-color: #e74c3c;" data-color="#e74c3c"></div>
+                <div class="color-swatch" style="--penguin-color: #9b59b6;" data-color="#9b59b6"></div>
+                <div class="color-swatch" style="--penguin-color: #2ecc71;" data-color="#2ecc71"></div>
+                <div class="color-swatch" style="--penguin-color: #f1c40f;" data-color="#f1c40f"></div>
+            </div>
         </div>
-
-        <!-- Elementos do cenário -->
-        <div id="ice-shop" class="building">
-            <span>Loja</span>
-        </div>
-
-        <div id="tree"></div>
     </div>
 
-    <div id="instructions">
-        Usa as setas do teclado para mover o pinguim!
-        <p id="special-message">Feito com carinho para a melhor namorada do mundo ❤️</p>
+    <div id="loading-screen">
+        <h2>A carregar a ilha...</h2>
+        <p>Feito com amor para a pinguim mais especial de todas ❤️</p>
     </div>
 
     <script src="script.js"></script>
