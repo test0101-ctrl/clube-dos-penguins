@@ -28,7 +28,8 @@ body {
     background-position: center;
     position: relative;
     overflow: hidden;
-    cursor: url('https://cur.cursors-4u.net/games/gam-14/gam-1340.cur'), auto;
+    /* Cursor externo pode falhar. Um cursor padrão é mais seguro. */
+    cursor: pointer; 
 }
 
 /* --- ESTILOS DO JOGADOR (PINGUIM) --- */
@@ -203,16 +204,20 @@ body {
     left: 1.5px;
 }
 
-/* Bola de Neve */
+/* --- ALTERAÇÃO PRINCIPAL AQUI --- */
+/* Bola de Neve criada com CSS */
 .snowball {
     width: 25px;
     height: 25px;
-    background-image: url('https://i.imgur.com/u3Jz827.png'); /* Sprite de bola de neve */
-    background-size: contain;
+    background-color: #ffffff;
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    box-shadow: inset 3px -3px 5px rgba(0, 0, 0, 0.1);
     position: absolute;
     z-index: 500;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
 }
+
 
 /* Portais (zonas de transição) */
 .portal {
